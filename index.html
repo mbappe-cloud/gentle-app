@@ -1,0 +1,2355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gentle — Your Soft Place to Land</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --cream: #FDF6EC; --warm-white: #FFF9F2; --soft-peach: #F5E6D3;
+  --warm-rose: #E8B4B8; --dusty-rose: #D4A5A5; --sage: #A8C5A8;
+  --soft-sage: #C5D5C5; --warm-brown: #8B7355; --soft-brown: #A89080;
+  --gentle-text: #5C4A3D; --cloudy: #B8C4CE; --rainy: #9BAEC2;
+  --stormy: #7A8FA6; --sunny: #F0C987; --lavender: #C5B9E0; --mint: #B8E0D2;
+  --companion-pink: #F8E1E4; --garden-green: #D4E8D4; --bloom-gold: #F5D89A;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--cream);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  overflow: hidden;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 420px;
+  height: 100vh;
+  max-height: 900px;
+  background: var(--warm-white);
+  border-radius: 32px;
+  box-shadow: 0 12px 50px rgba(139,115,85,0.12);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen {
+  display: none;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--soft-peach) transparent;
+  animation: fadeIn 0.5s ease;
+  padding: 20px 18px 90px;
+}
+.screen::-webkit-scrollbar { width: 3px; }
+.screen::-webkit-scrollbar-thumb { background: var(--soft-peach); border-radius: 3px; }
+.screen.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes gentleFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes softPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+@keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes bloomGrow { 0% { transform: scale(0) rotate(-10deg); opacity: 0; } 60% { transform: scale(1.1) rotate(3deg); opacity: 1; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+@keyframes petalFall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(200px) rotate(360deg); opacity: 0; } }
+@keyframes glowPulse { 0%,100% { box-shadow: 0 0 5px rgba(232,180,184,0.3); } 50% { box-shadow: 0 0 20px rgba(232,180,184,0.6); } }
+@keyframes typeCursor { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes mapGlow { 0%,100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+@keyframes floatAcross { 0% { transform: translateX(-10px) translateY(0); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateX(10px) translateY(-20px); opacity: 0; } }
+
+/* Loading */
+.loading-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--warm-white);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 1000; transition: opacity 0.5s ease;
+}
+.loading-overlay.hidden { opacity: 0; pointer-events: none; }
+.loading-heart { font-size: 48px; animation: softPulse 1.5s ease-in-out infinite; }
+.loading-text { margin-top: 16px; font-size: 14px; color: var(--soft-brown); font-weight: 600; }
+
+/* Welcome */
+.welcome-screen {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 40px 28px;
+  position: relative; overflow: hidden; min-height: 100%;
+}
+.welcome-bg-shapes { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.bg-shape { position: absolute; border-radius: 50%; opacity: 0.12; animation: gentleFloat 10s ease-in-out infinite; }
+.bg-shape:nth-child(1) { width: 140px; height: 140px; background: var(--warm-rose); top: 5%; left: -30px; }
+.bg-shape:nth-child(2) { width: 100px; height: 100px; background: var(--sage); top: 25%; right: -20px; animation-delay: 2s; }
+.bg-shape:nth-child(3) { width: 80px; height: 80px; background: var(--sunny); bottom: 20%; left: 5%; animation-delay: 4s; }
+.bg-shape:nth-child(4) { width: 120px; height: 120px; background: var(--lavender); bottom: 5%; right: 0; animation-delay: 1s; }
+.bg-shape:nth-child(5) { width: 60px; height: 60px; background: var(--mint); top: 55%; left: 55%; animation-delay: 3s; }
+
+.welcome-illustration { width: 160px; height: 160px; margin-bottom: 32px; position: relative; animation: gentleFloat 5s ease-in-out infinite; }
+.welcome-illustration svg { width: 100%; height: 100%; filter: drop-shadow(0 8px 24px rgba(232,180,184,0.3)); }
+.welcome-title { font-size: 40px; font-weight: 800; color: var(--gentle-text); margin-bottom: 14px; letter-spacing: -1px; background: linear-gradient(135deg, var(--gentle-text), var(--warm-brown)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.welcome-subtitle { font-size: 15px; color: var(--soft-brown); line-height: 1.7; margin-bottom: 10px; max-width: 280px; }
+.welcome-promise { font-size: 12px; color: var(--dusty-rose); font-weight: 600; margin-bottom: 40px; padding: 10px 18px; background: var(--soft-peach); border-radius: 20px; display: inline-block; }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--warm-rose), var(--dusty-rose));
+  color: white; border: none; padding: 16px 48px; border-radius: 28px;
+  font-size: 16px; font-weight: 700; font-family: 'Nunito', sans-serif;
+  cursor: pointer; transition: all 0.3s ease;
+  box-shadow: 0 6px 24px rgba(232,180,184,0.35); position: relative; overflow: hidden;
+}
+.btn-primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 10px 32px rgba(232,180,184,0.45); }
+.btn-primary:active { transform: translateY(0) scale(0.98); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.btn-secondary {
+  background: white; border: 2px solid var(--soft-peach); color: var(--soft-brown);
+  padding: 12px 24px; border-radius: 20px; font-size: 14px; font-weight: 700;
+  font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.3s ease;
+}
+.btn-secondary:hover { background: var(--cream); border-color: var(--warm-rose); color: var(--gentle-text); }
+
+/* Home */
+.home-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+.greeting { font-size: 24px; font-weight: 800; color: var(--gentle-text); line-height: 1.2; }
+.date-display { font-size: 12px; color: var(--soft-brown); margin-top: 3px; font-weight: 500; }
+.weather-brief { font-size: 11px; color: var(--dusty-rose); margin-top: 2px; font-weight: 600; }
+.avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--soft-peach), var(--warm-rose)); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(232,180,184,0.2); border: 2px solid white; }
+.avatar:hover { transform: scale(1.1) rotate(5deg); }
+
+.gentle-streak { display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, var(--soft-sage), var(--sage)); padding: 12px 16px; border-radius: 16px; margin-bottom: 18px; color: white; font-size: 12px; font-weight: 600; box-shadow: 0 4px 16px rgba(168,197,168,0.25); line-height: 1.5; }
+.gentle-streak span:first-child { font-size: 18px; flex-shrink: 0; }
+
+/* Check-in */
+.checkin-card {
+  background: linear-gradient(145deg, var(--soft-peach), var(--warm-rose));
+  border-radius: 24px; padding: 24px 20px; margin-bottom: 20px;
+  color: white; position: relative; overflow: hidden;
+  box-shadow: 0 8px 28px rgba(232,180,184,0.25);
+  animation: breathe 8s ease-in-out infinite;
+}
+.checkin-card::before { content: ''; position: absolute; top: -30px; right: -30px; width: 120px; height: 120px; background: rgba(255,255,255,0.08); border-radius: 50%; }
+.checkin-card::after { content: ''; position: absolute; bottom: -15px; left: -15px; width: 70px; height: 70px; background: rgba(255,255,255,0.06); border-radius: 50%; }
+.checkin-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.85; margin-bottom: 6px; font-weight: 600; }
+.checkin-question { font-size: 20px; font-weight: 800; margin-bottom: 20px; line-height: 1.3; position: relative; z-index: 1; }
+.mood-options { display: flex; gap: 12px; justify-content: center; position: relative; z-index: 1; }
+.mood-btn { width: 56px; height: 56px; border-radius: 50%; border: 2.5px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.12); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; transition: all 0.35s cubic-bezier(0.4,0,0.2,1); backdrop-filter: blur(6px); position: relative; }
+.mood-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.12) translateY(-3px); border-color: rgba(255,255,255,0.7); }
+.mood-btn.selected { background: rgba(255,255,255,0.5); transform: scale(1.18) translateY(-5px); border-color: white; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+.mood-label { position: absolute; bottom: -18px; font-size: 9px; font-weight: 700; color: white; opacity: 0; transition: all 0.3s ease; white-space: nowrap; }
+.mood-btn:hover .mood-label, .mood-btn.selected .mood-label { opacity: 0.9; }
+
+/* Suggestions */
+.suggestions-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.section-title { font-size: 16px; font-weight: 800; color: var(--gentle-text); }
+.refresh-btn { background: none; border: none; font-size: 16px; cursor: pointer; padding: 6px; border-radius: 10px; transition: all 0.4s ease; }
+.refresh-btn:hover { transform: rotate(180deg) scale(1.1); background: var(--cream); }
+.refresh-btn.spinning { animation: spin 0.6s ease; }
+
+.suggestion-card {
+  background: white; border-radius: 20px; padding: 20px; margin-bottom: 12px;
+  box-shadow: 0 2px 12px rgba(139,115,85,0.06); border: 1px solid var(--soft-peach);
+  transition: all 0.35s ease; position: relative; overflow: hidden; animation: slideUp 0.5s ease;
+}
+.suggestion-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--card-accent, var(--warm-rose)); opacity: 0.5; }
+.suggestion-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(139,115,85,0.1); }
+.suggestion-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.suggestion-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; background: var(--icon-bg, var(--soft-peach)); transition: all 0.3s ease; }
+.suggestion-card:hover .suggestion-icon { transform: scale(1.08) rotate(-3deg); }
+.suggestion-title { font-size: 15px; font-weight: 700; color: var(--gentle-text); }
+.suggestion-duration { font-size: 10px; color: var(--soft-brown); font-weight: 600; margin-top: 2px; }
+.suggestion-desc { font-size: 13px; color: var(--soft-brown); line-height: 1.6; margin-bottom: 14px; }
+.suggestion-action { background: var(--cream); border: 2px solid var(--soft-peach); padding: 10px 20px; border-radius: 16px; font-size: 13px; font-weight: 700; color: var(--warm-brown); font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 6px; }
+.suggestion-action:hover { background: var(--soft-peach); color: var(--gentle-text); transform: translateY(-1px); }
+
+/* Journal */
+.journal-section { margin-top: 24px; }
+.journal-prompts { display: flex; gap: 8px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.journal-prompts::-webkit-scrollbar { display: none; }
+.journal-prompt { background: white; border: 1.5px solid var(--soft-peach); padding: 8px 14px; border-radius: 18px; font-size: 11px; font-weight: 600; color: var(--soft-brown); font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.25s ease; white-space: nowrap; flex-shrink: 0; }
+.journal-prompt:hover { background: var(--soft-peach); color: var(--gentle-text); transform: translateY(-1px); }
+.journal-prompt:active { transform: scale(0.95); }
+
+.journal-input-wrap { position: relative; }
+.journal-input {
+  width: 100%; border: 2px solid var(--soft-peach); border-radius: 18px;
+  padding: 14px 48px 14px 16px; font-size: 14px; font-family: 'Nunito', sans-serif;
+  color: var(--gentle-text); background: white; resize: none; outline: none;
+  transition: all 0.3s ease; line-height: 1.5;
+}
+.journal-input:focus { border-color: var(--warm-rose); box-shadow: 0 4px 16px rgba(232,180,184,0.12); }
+.journal-input::placeholder { color: var(--soft-brown); opacity: 0.6; }
+.journal-send { position: absolute; right: 10px; bottom: 10px; width: 32px; height: 32px; border-radius: 50%; background: var(--warm-rose); border: none; color: white; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
+.journal-send:hover { transform: scale(1.1); background: var(--dusty-rose); }
+.journal-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.journal-entries { margin-top: 14px; }
+.journal-entry {
+  background: white; border-radius: 16px; padding: 16px; margin-bottom: 10px;
+  border-left: 3px solid var(--entry-color, var(--warm-rose));
+  box-shadow: 0 1px 8px rgba(139,115,85,0.04); animation: slideUp 0.4s ease;
+  position: relative; transition: all 0.3s ease;
+}
+.journal-entry:hover { transform: translateX(3px); box-shadow: 0 3px 16px rgba(139,115,85,0.08); }
+.journal-entry-text { font-size: 13px; color: var(--gentle-text); line-height: 1.6; }
+.journal-entry-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+.journal-entry-time { font-size: 10px; color: var(--soft-brown); font-weight: 500; }
+.journal-entry-mood { font-size: 13px; }
+.journal-entry-actions { display: flex; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--soft-peach); }
+.entry-action { background: none; border: none; font-size: 12px; color: var(--soft-brown); cursor: pointer; padding: 4px 10px; border-radius: 10px; transition: all 0.2s ease; font-family: 'Nunito', sans-serif; font-weight: 600; }
+.entry-action:hover { background: var(--cream); color: var(--gentle-text); }
+
+/* Pass It On */
+.pass-it-on {
+  background: linear-gradient(145deg, var(--sage), var(--soft-sage));
+  border-radius: 22px; padding: 24px; margin-top: 24px; color: white;
+  text-align: center; position: relative; overflow: hidden;
+  box-shadow: 0 8px 24px rgba(168,197,168,0.25);
+}
+.pass-it-on::before { content: ''; position: absolute; top: -25px; right: -25px; width: 90px; height: 90px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+.pass-it-on-title { font-size: 16px; font-weight: 800; margin-bottom: 8px; position: relative; }
+.pass-it-on-desc { font-size: 12px; opacity: 0.9; margin-bottom: 12px; line-height: 1.5; position: relative; }
+.pass-it-on-stats { font-size: 11px; opacity: 0.8; margin-bottom: 12px; font-weight: 500; position: relative; }
+.pass-btn { background: rgba(255,255,255,0.25); border: 2px solid rgba(255,255,255,0.4); color: white; padding: 10px 28px; border-radius: 20px; font-size: 14px; font-weight: 700; font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.3s ease; position: relative; }
+.pass-btn:hover { background: rgba(255,255,255,0.4); transform: scale(1.04); }
+.pass-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* Kindness Feed */
+.kindness-feed { margin-top: 18px; }
+.kindness-card {
+  background: white; border-radius: 16px; padding: 16px; margin-bottom: 10px;
+  box-shadow: 0 1px 10px rgba(139,115,85,0.04); border: 1px solid var(--soft-peach);
+  position: relative; animation: slideUp 0.5s ease;
+}
+.kindness-card::before { content: '💌'; position: absolute; top: -8px; left: 16px; font-size: 18px; background: var(--warm-white); padding: 0 5px; }
+.kindness-text { font-size: 13px; color: var(--gentle-text); line-height: 1.6; font-style: italic; padding-top: 6px; }
+.kindness-meta { font-size: 10px; color: var(--soft-brown); margin-top: 8px; font-weight: 500; }
+.kindness-reply { background: none; border: none; font-size: 12px; color: var(--sage); cursor: pointer; margin-top: 6px; font-family: 'Nunito', sans-serif; font-weight: 700; transition: all 0.2s ease; }
+.kindness-reply:hover { color: var(--gentle-text); }
+
+/* Response Screen */
+.response-screen { display: none; text-align: center; padding: 60px 28px; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; }
+.response-emoji { font-size: 72px; margin-bottom: 24px; animation: softPulse 3s ease-in-out infinite; }
+.response-title { font-size: 24px; font-weight: 800; color: var(--gentle-text); margin-bottom: 12px; }
+.response-message { font-size: 15px; color: var(--soft-brown); line-height: 1.7; margin-bottom: 14px; max-width: 280px; }
+.response-quote { font-size: 13px; color: var(--dusty-rose); font-style: italic; margin-bottom: 32px; padding: 14px 18px; background: var(--cream); border-radius: 14px; max-width: 280px; line-height: 1.6; }
+.response-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+/* Profile */
+.profile-screen { padding: 20px 18px 90px; }
+.profile-header { text-align: center; padding: 16px 0 24px; }
+.profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--soft-peach), var(--warm-rose)); display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 14px; box-shadow: 0 8px 20px rgba(232,180,184,0.25); border: 3px solid white; }
+.profile-name { font-size: 20px; font-weight: 800; color: var(--gentle-text); }
+.profile-bio { font-size: 12px; color: var(--soft-brown); margin-top: 3px; }
+.profile-stats { display: flex; justify-content: center; gap: 28px; margin: 20px 0; }
+.profile-stat { text-align: center; }
+.stat-number { font-size: 22px; font-weight: 800; color: var(--gentle-text); }
+.stat-label { font-size: 10px; color: var(--soft-brown); font-weight: 600; margin-top: 2px; }
+.profile-section { background: white; border-radius: 18px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(139,115,85,0.05); }
+.profile-section-title { font-size: 14px; font-weight: 700; color: var(--gentle-text); margin-bottom: 12px; }
+.mood-history { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.mood-history::-webkit-scrollbar { display: none; }
+.mood-history-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 10px; background: var(--cream); border-radius: 12px; min-width: 50px; }
+.mood-history-emoji { font-size: 18px; }
+.mood-history-day { font-size: 9px; color: var(--soft-brown); font-weight: 600; }
+.setting-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--soft-peach); }
+.setting-item:last-child { border-bottom: none; }
+.setting-label { font-size: 13px; color: var(--gentle-text); font-weight: 600; }
+.setting-desc { font-size: 10px; color: var(--soft-brown); margin-top: 2px; }
+.toggle { width: 44px; height: 24px; background: var(--soft-peach); border-radius: 12px; position: relative; cursor: pointer; transition: all 0.3s ease; flex-shrink: 0; }
+.toggle.active { background: var(--sage); }
+.toggle-knob { width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.toggle.active .toggle-knob { left: 22px; }
+
+/* Kindness Screen */
+.kindness-screen { padding: 20px 18px 90px; }
+.kindness-header { text-align: center; margin-bottom: 20px; }
+.kindness-header-emoji { font-size: 40px; margin-bottom: 6px; }
+.kindness-header-title { font-size: 20px; font-weight: 800; color: var(--gentle-text); }
+.kindness-header-desc { font-size: 12px; color: var(--soft-brown); margin-top: 3px; }
+.send-kindness-card { background: linear-gradient(145deg, var(--sage), var(--soft-sage)); border-radius: 22px; padding: 24px; color: white; text-align: center; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(168,197,168,0.25); }
+.send-kindness-title { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+.send-kindness-desc { font-size: 12px; opacity: 0.9; margin-bottom: 16px; line-height: 1.5; }
+.received-title { font-size: 14px; font-weight: 700; color: var(--gentle-text); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+
+/* Journal Screen */
+.journal-screen { padding: 20px 18px 90px; }
+.journal-screen-header { margin-bottom: 16px; }
+.journal-screen-title { font-size: 24px; font-weight: 800; color: var(--gentle-text); }
+.journal-screen-sub { font-size: 12px; color: var(--soft-brown); margin-top: 3px; }
+
+/* Bottom Nav */
+.bottom-nav {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(255,249,242,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--soft-peach); padding: 8px 0 20px;
+  display: flex; justify-content: space-around; border-radius: 0 0 32px 32px; z-index: 50;
+}
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 6px 14px; border-radius: 14px; transition: all 0.3s ease; position: relative; }
+.nav-item:hover { background: var(--cream); }
+.nav-item.active { color: var(--warm-rose); }
+.nav-item.active::after { content: ''; position: absolute; bottom: -3px; width: 18px; height: 3px; background: var(--warm-rose); border-radius: 2px; }
+.nav-item:not(.active) { color: var(--soft-brown); }
+.nav-icon { font-size: 22px; transition: all 0.3s ease; }
+.nav-item:hover .nav-icon { transform: translateY(-2px); }
+.nav-label { font-size: 10px; font-weight: 700; }
+
+/* Breathing Overlay */
+.breathing-overlay { display: none; position: fixed; inset: 0; background: rgba(253,246,236,0.98); flex-direction: column; align-items: center; justify-content: center; z-index: 150; text-align: center; padding: 40px; }
+.breathing-overlay.active { display: flex; }
+.breathing-circle { width: 180px; height: 180px; border-radius: 50%; background: linear-gradient(135deg, var(--warm-rose), var(--soft-peach)); display: flex; align-items: center; justify-content: center; margin-bottom: 32px; animation: breathe 4s ease-in-out infinite; box-shadow: 0 8px 32px rgba(232,180,184,0.3); }
+.breathing-circle-inner { width: 140px; height: 140px; border-radius: 50%; background: linear-gradient(135deg, var(--soft-peach), var(--warm-rose)); display: flex; align-items: center; justify-content: center; animation: breathe 4s ease-in-out infinite reverse; }
+.breathing-text { font-size: 18px; font-weight: 700; color: white; }
+.breathing-instruction { font-size: 16px; color: var(--gentle-text); font-weight: 700; margin-bottom: 6px; }
+.breathing-sub { font-size: 13px; color: var(--soft-brown); margin-bottom: 28px; }
+
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(92,74,61,0.4); justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); padding: 20px; }
+.modal-overlay.active { display: flex; }
+.modal { background: var(--warm-white); border-radius: 24px; padding: 28px; width: 100%; max-width: 340px; text-align: center; animation: fadeIn 0.35s ease; box-shadow: 0 20px 50px rgba(92,74,61,0.18); }
+.modal-emoji { font-size: 48px; margin-bottom: 14px; animation: gentleFloat 3s ease-in-out infinite; }
+.modal-title { font-size: 20px; font-weight: 800; color: var(--gentle-text); margin-bottom: 8px; }
+.modal-desc { font-size: 13px; color: var(--soft-brown); line-height: 1.6; margin-bottom: 16px; }
+.modal-presets { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 14px; }
+.preset-btn { background: var(--cream); border: 1.5px solid var(--soft-peach); padding: 7px 12px; border-radius: 14px; font-size: 11px; font-weight: 600; color: var(--soft-brown); font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.2s ease; }
+.preset-btn:hover { background: var(--soft-peach); color: var(--gentle-text); transform: translateY(-1px); }
+.modal-input { width: 100%; border: 2px solid var(--soft-peach); border-radius: 16px; padding: 12px 14px; font-size: 13px; font-family: 'Nunito', sans-serif; margin-bottom: 16px; outline: none; transition: all 0.3s ease; resize: none; }
+.modal-input:focus { border-color: var(--sage); box-shadow: 0 4px 12px rgba(168,197,168,0.15); }
+.modal-actions { display: flex; gap: 8px; }
+.modal-btn { flex: 1; padding: 12px; border-radius: 16px; font-size: 13px; font-weight: 700; font-family: 'Nunito', sans-serif; cursor: pointer; border: none; transition: all 0.3s ease; }
+.modal-btn-cancel { background: var(--cream); color: var(--soft-brown); }
+.modal-btn-send { background: linear-gradient(135deg, var(--sage), var(--soft-sage)); color: white; box-shadow: 0 4px 12px rgba(168,197,168,0.25); }
+.modal-btn:hover { transform: translateY(-1px); }
+
+/* Toast */
+.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--gentle-text); color: white; padding: 12px 24px; border-radius: 20px; font-size: 13px; font-weight: 600; opacity: 0; transition: all 0.4s cubic-bezier(0.4,0,0.2,1); pointer-events: none; z-index: 200; white-space: nowrap; box-shadow: 0 6px 20px rgba(92,74,61,0.2); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Empty State */
+.empty-state { text-align: center; padding: 40px 20px; color: var(--soft-brown); }
+.empty-state-emoji { font-size: 48px; margin-bottom: 12px; opacity: 0.6; }
+.empty-state-text { font-size: 14px; font-weight: 600; }
+.empty-state-sub { font-size: 12px; margin-top: 4px; opacity: 0.7; }
+
+/* Upgrade Banner */
+.upgrade-banner { background: linear-gradient(135deg, var(--sunny), var(--soft-peach)); border-radius: 16px; padding: 14px 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.3s ease; }
+.upgrade-banner:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(240,201,135,0.3); }
+.upgrade-banner-icon { font-size: 24px; }
+.upgrade-banner-text { flex: 1; }
+.upgrade-banner-title { font-size: 13px; font-weight: 700; color: var(--gentle-text); }
+.upgrade-banner-desc { font-size: 11px; color: var(--warm-brown); margin-top: 1px; }
+.upgrade-banner-btn { background: white; border: none; padding: 8px 16px; border-radius: 12px; font-size: 12px; font-weight: 700; color: var(--gentle-text); font-family: 'Nunito', sans-serif; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+/* Server Status */
+.server-status { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 10px; margin-bottom: 10px; }
+.server-status.online { background: #E8F5E9; color: #2E7D32; }
+.server-status.offline { background: #FFEBEE; color: #C62828; }
+.server-status-dot { width: 6px; height: 6px; border-radius: 50%; animation: softPulse 2s infinite; }
+.server-status.online .server-status-dot { background: #2E7D32; }
+.server-status.offline .server-status-dot { background: #C62828; }
+
+/* API Config Panel */
+.api-config { background: white; border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(139,115,85,0.05); border: 1px solid var(--soft-peach); }
+.api-config-title { font-size: 13px; font-weight: 700; color: var(--gentle-text); margin-bottom: 10px; }
+.api-config-input { width: 100%; border: 2px solid var(--soft-peach); border-radius: 12px; padding: 10px 12px; font-size: 12px; font-family: 'Nunito', sans-serif; margin-bottom: 8px; outline: none; }
+.api-config-input:focus { border-color: var(--warm-rose); }
+.api-config-btn { background: var(--sage); color: white; border: none; padding: 8px 16px; border-radius: 12px; font-size: 12px; font-weight: 700; font-family: 'Nunito', sans-serif; cursor: pointer; }
+
+/* ===== MODERATION SYSTEM ===== */
+.suspension-banner { background: linear-gradient(135deg, #FFEBEE, #FFCDD2); border: 2px solid #EF9A9A; border-radius: 18px; padding: 16px 18px; margin-bottom: 16px; display: none; align-items: flex-start; gap: 12px; animation: slideUp 0.4s ease; }
+.suspension-banner.active { display: flex; }
+.suspension-icon { font-size: 28px; flex-shrink: 0; margin-top: 2px; }
+.suspension-content { flex: 1; }
+.suspension-title { font-size: 14px; font-weight: 800; color: #C62828; margin-bottom: 4px; }
+.suspension-desc { font-size: 12px; color: #8B0000; line-height: 1.5; margin-bottom: 8px; }
+.suspension-timer { display: inline-flex; align-items: center; gap: 6px; background: white; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; color: #C62828; border: 1px solid #EF9A9A; }
+.suspension-timer .timer-digit { font-variant-numeric: tabular-nums; min-width: 20px; text-align: center; }
+.moderation-badge { display: inline-flex; align-items: center; gap: 4px; background: #FFEBEE; color: #C62828; padding: 4px 10px; border-radius: 10px; font-size: 10px; font-weight: 700; margin-left: 8px; animation: softPulse 2s infinite; }
+.offense-modal .modal { max-width: 380px; text-align: left; }
+.offense-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 2px solid var(--soft-peach); }
+.offense-icon { font-size: 36px; }
+.offense-title-group { flex: 1; }
+.offense-title { font-size: 18px; font-weight: 800; color: #C62828; }
+.offense-subtitle { font-size: 12px; color: var(--soft-brown); margin-top: 2px; }
+.offense-details { background: #FFF3E0; border-radius: 14px; padding: 14px; margin-bottom: 14px; border-left: 4px solid #EF6C00; }
+.offense-label { font-size: 10px; font-weight: 700; color: #E65100; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.offense-text { font-size: 13px; color: var(--gentle-text); line-height: 1.5; }
+.offense-violations { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.violation-tag { background: #FFEBEE; color: #C62828; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; border: 1px solid #EF9A9A; }
+.offense-consequence { background: #FFEBEE; border-radius: 14px; padding: 14px; margin-bottom: 16px; border-left: 4px solid #C62828; }
+.offense-consequence-title { font-size: 13px; font-weight: 800; color: #C62828; margin-bottom: 6px; }
+.offense-consequence-list { list-style: none; }
+.offense-consequence-list li { font-size: 12px; color: var(--gentle-text); padding: 4px 0; padding-left: 18px; position: relative; }
+.offense-consequence-list li::before { content: '⚠️'; position: absolute; left: 0; font-size: 10px; }
+.moderation-history-section { margin-top: 20px; }
+.moderation-history-title { font-size: 14px; font-weight: 700; color: var(--gentle-text); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.offense-card { background: white; border-radius: 14px; padding: 14px; margin-bottom: 10px; border-left: 3px solid #EF9A9A; box-shadow: 0 1px 8px rgba(139,115,85,0.04); transition: all 0.3s ease; }
+.offense-card:hover { transform: translateX(3px); }
+.offense-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.offense-card-date { font-size: 10px; color: var(--soft-brown); font-weight: 600; }
+.offense-card-status { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 8px; }
+.offense-card-status.active { background: #FFEBEE; color: #C62828; }
+.offense-card-status.resolved { background: #E8F5E9; color: #2E7D32; }
+.offense-card-reason { font-size: 12px; color: var(--gentle-text); line-height: 1.5; margin-bottom: 6px; }
+.offense-card-meta { font-size: 10px; color: var(--soft-brown); }
+.report-btn { background: none; border: 1.5px solid var(--soft-peach); padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: 700; color: var(--soft-brown); font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.2s ease; margin-left: 8px; }
+.report-btn:hover { background: #FFEBEE; border-color: #EF9A9A; color: #C62828; }
+
+/* ===== COMPANION SYSTEM ===== */
+.companion-screen { padding: 0; display: flex; flex-direction: column; height: 100%; }
+.companion-header { background: linear-gradient(135deg, var(--companion-pink), var(--soft-peach)); padding: 20px 18px; text-align: center; position: relative; border-radius: 0 0 24px 24px; margin-bottom: 10px; }
+.companion-avatar { width: 80px; height: 80px; margin: 0 auto 10px; animation: gentleFloat 4s ease-in-out infinite; }
+.companion-avatar svg { width: 100%; height: 100%; filter: drop-shadow(0 6px 16px rgba(232,180,184,0.3)); }
+.companion-name { font-size: 20px; font-weight: 800; color: var(--gentle-text); }
+.companion-status { font-size: 11px; color: var(--soft-brown); margin-top: 2px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.companion-status-dot { width: 6px; height: 6px; background: var(--sage); border-radius: 50%; animation: softPulse 2s infinite; }
+
+.companion-chat { flex: 1; overflow-y: auto; padding: 12px 18px 90px; display: flex; flex-direction: column; gap: 12px; }
+.companion-chat::-webkit-scrollbar { width: 3px; }
+.companion-chat::-webkit-scrollbar-thumb { background: var(--soft-peach); border-radius: 3px; }
+
+.chat-bubble { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 13px; line-height: 1.5; animation: slideUp 0.3s ease; position: relative; }
+.chat-bubble.companion { align-self: flex-start; background: white; border: 1.5px solid var(--soft-peach); color: var(--gentle-text); border-bottom-left-radius: 4px; }
+.chat-bubble.user { align-self: flex-end; background: linear-gradient(135deg, var(--warm-rose), var(--dusty-rose)); color: white; border-bottom-right-radius: 4px; }
+.chat-bubble-time { font-size: 9px; opacity: 0.5; margin-top: 4px; text-align: right; }
+
+.typing-indicator { display: flex; align-items: center; gap: 4px; padding: 12px 16px; background: white; border: 1.5px solid var(--soft-peach); border-radius: 18px; border-bottom-left-radius: 4px; align-self: flex-start; width: fit-content; }
+.typing-dot { width: 6px; height: 6px; background: var(--soft-brown); border-radius: 50%; animation: softPulse 1s ease-in-out infinite; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+.companion-input-wrap { position: absolute; bottom: 70px; left: 18px; right: 18px; display: flex; gap: 8px; align-items: flex-end; z-index: 10; }
+.companion-input { flex: 1; border: 2px solid var(--soft-peach); border-radius: 20px; padding: 12px 16px; font-size: 14px; font-family: 'Nunito', sans-serif; color: var(--gentle-text); background: white; resize: none; outline: none; transition: all 0.3s ease; line-height: 1.4; max-height: 100px; }
+.companion-input:focus { border-color: var(--warm-rose); box-shadow: 0 4px 16px rgba(232,180,184,0.12); }
+.companion-send { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--warm-rose), var(--dusty-rose)); border: none; color: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; flex-shrink: 0; box-shadow: 0 4px 12px rgba(232,180,184,0.3); }
+.companion-send:hover { transform: scale(1.1); }
+.companion-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.memory-chip { display: inline-flex; align-items: center; gap: 4px; background: var(--cream); border: 1px solid var(--soft-peach); padding: 4px 10px; border-radius: 12px; font-size: 10px; color: var(--soft-brown); font-weight: 600; margin-top: 6px; }
+
+.companion-fab {
+  position: fixed; bottom: 90px; right: 18px; width: 56px; height: 56px;
+  background: linear-gradient(135deg, var(--warm-rose), var(--dusty-rose));
+  border-radius: 50%; border: 3px solid white; display: flex; align-items: center; justify-content: center;
+  font-size: 28px; cursor: pointer; box-shadow: 0 6px 20px rgba(232,180,184,0.4);
+  transition: all 0.3s ease; z-index: 40; animation: gentleFloat 3s ease-in-out infinite;
+}
+.companion-fab:hover { transform: scale(1.1); box-shadow: 0 8px 28px rgba(232,180,184,0.5); }
+.companion-fab.hidden { transform: scale(0); opacity: 0; }
+.companion-fab-badge { position: absolute; top: -2px; right: -2px; width: 18px; height: 18px; background: #C62828; color: white; border-radius: 50%; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid white; }
+
+/* Name input modal */
+.name-modal .modal { max-width: 320px; }
+.name-input { width: 100%; border: 2px solid var(--soft-peach); border-radius: 16px; padding: 14px; font-size: 16px; font-family: 'Nunito', sans-serif; text-align: center; margin-bottom: 16px; outline: none; }
+.name-input:focus { border-color: var(--warm-rose); }
+
+/* ===== RIPPLE CARDS ===== */
+.ripple-card-preview {
+  background: linear-gradient(145deg, var(--warm-white), var(--cream));
+  border-radius: 24px; padding: 32px 24px; text-align: center;
+  border: 2px solid var(--soft-peach); position: relative; overflow: hidden;
+  box-shadow: 0 8px 32px rgba(139,115,85,0.1); margin-bottom: 20px;
+}
+.ripple-card-preview::before {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(232,180,184,0.1) 0%, transparent 70%);
+  animation: gentleFloat 8s ease-in-out infinite;
+}
+.ripple-card-flower { font-size: 64px; margin-bottom: 16px; animation: bloomGrow 1.2s ease-out; position: relative; z-index: 1; }
+.ripple-card-quote { font-size: 18px; font-weight: 700; color: var(--gentle-text); line-height: 1.5; margin-bottom: 16px; position: relative; z-index: 1; font-style: italic; }
+.ripple-card-footer { font-size: 11px; color: var(--soft-brown); font-weight: 600; position: relative; z-index: 1; }
+.ripple-card-watermark { position: absolute; bottom: 12px; right: 16px; font-size: 10px; color: var(--soft-brown); opacity: 0.5; font-weight: 700; }
+
+.bloom-btn {
+  background: linear-gradient(135deg, var(--sunny), var(--bloom-gold));
+  color: var(--gentle-text); border: none; padding: 14px 32px; border-radius: 24px;
+  font-size: 15px; font-weight: 800; font-family: 'Nunito', sans-serif;
+  cursor: pointer; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(240,201,135,0.35);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.bloom-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 10px 28px rgba(240,201,135,0.45); }
+.bloom-btn:active { transform: scale(0.98); }
+
+.card-gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px; }
+.card-gallery-item {
+  background: white; border-radius: 14px; padding: 14px; text-align: center;
+  border: 1.5px solid var(--soft-peach); cursor: pointer; transition: all 0.3s ease;
+  position: relative; overflow: hidden;
+}
+.card-gallery-item:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(139,115,85,0.1); }
+.card-gallery-flower { font-size: 32px; margin-bottom: 6px; }
+.card-gallery-text { font-size: 11px; color: var(--gentle-text); font-weight: 600; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.card-gallery-date { font-size: 9px; color: var(--soft-brown); margin-top: 4px; }
+
+.share-actions { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
+.share-btn { background: white; border: 2px solid var(--soft-peach); padding: 10px 20px; border-radius: 16px; font-size: 13px; font-weight: 700; color: var(--warm-brown); font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 6px; }
+.share-btn:hover { background: var(--cream); border-color: var(--warm-rose); transform: translateY(-1px); }
+
+/* ===== THE GARDEN ===== */
+.garden-screen { padding: 0; display: flex; flex-direction: column; height: 100%; position: relative; }
+.garden-header {
+  background: linear-gradient(135deg, var(--garden-green), var(--soft-sage));
+  padding: 20px 18px; text-align: center; border-radius: 0 0 24px 24px;
+  position: relative; z-index: 2; box-shadow: 0 4px 20px rgba(168,197,168,0.2);
+}
+.garden-title { font-size: 22px; font-weight: 800; color: var(--gentle-text); }
+.garden-subtitle { font-size: 12px; color: var(--soft-brown); margin-top: 2px; }
+
+.garden-goal {
+  background: white; border-radius: 14px; padding: 12px 16px; margin: 12px 18px;
+  box-shadow: 0 2px 12px rgba(139,115,85,0.06); border: 1px solid var(--soft-peach);
+}
+.garden-goal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.garden-goal-title { font-size: 12px; font-weight: 700; color: var(--gentle-text); }
+.garden-goal-count { font-size: 11px; color: var(--sage); font-weight: 800; }
+.garden-progress-bar { height: 8px; background: var(--cream); border-radius: 4px; overflow: hidden; }
+.garden-progress-fill { height: 100%; background: linear-gradient(90deg, var(--sage), var(--soft-sage)); border-radius: 4px; transition: width 1s ease; }
+.garden-goal-desc { font-size: 10px; color: var(--soft-brown); margin-top: 6px; }
+
+.garden-map { flex: 1; position: relative; overflow: hidden; background: linear-gradient(180deg, #E8F4E8 0%, #FDF6EC 100%); }
+.garden-map-svg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.15; }
+.garden-dot {
+  position: absolute; width: 10px; height: 10px; border-radius: 50%;
+  cursor: pointer; transition: all 0.3s ease; animation: glowPulse 3s ease-in-out infinite;
+}
+.garden-dot:hover { transform: scale(2); z-index: 10; }
+.garden-dot.sunny { background: var(--sunny); box-shadow: 0 0 8px rgba(240,201,135,0.6); }
+.garden-dot.cloudy { background: var(--cloudy); box-shadow: 0 0 8px rgba(184,196,206,0.6); }
+.garden-dot.rainy { background: var(--rainy); box-shadow: 0 0 8px rgba(155,174,194,0.6); }
+.garden-dot.stormy { background: var(--stormy); box-shadow: 0 0 8px rgba(122,143,166,0.6); }
+
+.garden-floating-petal {
+  position: absolute; font-size: 16px; pointer-events: none;
+  animation: petalFall 8s linear infinite; opacity: 0.6;
+}
+
+.garden-message-panel {
+  position: absolute; bottom: 80px; left: 18px; right: 18px;
+  background: white; border-radius: 20px; padding: 18px;
+  box-shadow: 0 8px 32px rgba(139,115,85,0.15); border: 1px solid var(--soft-peach);
+  transform: translateY(120%); transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); z-index: 5;
+}
+.garden-message-panel.active { transform: translateY(0); }
+.garden-message-text { font-size: 14px; color: var(--gentle-text); line-height: 1.6; font-style: italic; margin-bottom: 10px; }
+.garden-message-meta { display: flex; justify-content: space-between; align-items: center; }
+.garden-message-location { font-size: 10px; color: var(--soft-brown); font-weight: 600; }
+.garden-message-close { background: none; border: none; font-size: 16px; cursor: pointer; color: var(--soft-brown); }
+
+.garden-actions {
+  position: absolute; bottom: 18px; left: 18px; right: 18px;
+  display: flex; gap: 10px; z-index: 5;
+}
+.garden-action-btn { flex: 1; background: white; border: 2px solid var(--soft-peach); padding: 12px; border-radius: 16px; font-size: 13px; font-weight: 700; color: var(--warm-brown); font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.3s ease; text-align: center; box-shadow: 0 2px 12px rgba(139,115,85,0.06); }
+.garden-action-btn:hover { background: var(--cream); border-color: var(--sage); color: var(--gentle-text); transform: translateY(-2px); }
+.garden-action-btn.primary { background: linear-gradient(135deg, var(--sage), var(--soft-sage)); color: white; border: none; box-shadow: 0 4px 16px rgba(168,197,168,0.3); }
+.garden-action-btn.primary:hover { box-shadow: 0 6px 20px rgba(168,197,168,0.4); }
+
+/* Huddle Room */
+.huddle-screen { padding: 20px 18px 90px; }
+.huddle-header { text-align: center; margin-bottom: 20px; }
+.huddle-title { font-size: 20px; font-weight: 800; color: var(--gentle-text); }
+.huddle-subtitle { font-size: 12px; color: var(--soft-brown); margin-top: 3px; }
+.huddle-mood-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--cream); border: 2px solid var(--soft-peach); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; color: var(--gentle-text); margin: 12px auto; width: fit-content; }
+.huddle-timer { font-size: 11px; color: var(--soft-brown); text-align: center; margin-bottom: 16px; }
+.huddle-chat { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.huddle-message { background: white; border-radius: 14px; padding: 12px 14px; border-left: 3px solid var(--soft-peach); box-shadow: 0 1px 8px rgba(139,115,85,0.04); animation: slideUp 0.3s ease; }
+.huddle-message-text { font-size: 12px; color: var(--gentle-text); line-height: 1.5; }
+.huddle-message-meta { font-size: 9px; color: var(--soft-brown); margin-top: 4px; font-weight: 500; }
+.huddle-input-wrap { display: flex; gap: 8px; align-items: flex-end; }
+.huddle-input { flex: 1; border: 2px solid var(--soft-peach); border-radius: 18px; padding: 10px 14px; font-size: 13px; font-family: 'Nunito', sans-serif; color: var(--gentle-text); background: white; resize: none; outline: none; }
+.huddle-input:focus { border-color: var(--warm-rose); }
+.huddle-send { width: 40px; height: 40px; border-radius: 50%; background: var(--sage); border: none; color: white; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; flex-shrink: 0; }
+.huddle-send:hover { transform: scale(1.1); }
+
+/* Seasonal Event Banner */
+.seasonal-banner {
+  background: linear-gradient(135deg, #FFE0E0, #FFF0F0);
+  border: 2px solid #FFB3B3; border-radius: 18px; padding: 14px 16px;
+  margin-bottom: 16px; display: flex; align-items: center; gap: 12px;
+  animation: gentleFloat 6s ease-in-out infinite;
+}
+.seasonal-icon { font-size: 28px; }
+.seasonal-content { flex: 1; }
+.seasonal-title { font-size: 13px; font-weight: 800; color: #C62828; }
+.seasonal-desc { font-size: 11px; color: var(--soft-brown); margin-top: 2px; }
+.seasonal-btn { background: white; border: none; padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: 700; color: #C62828; font-family: 'Nunito', sans-serif; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08); white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-heart">🌸</div>
+  <div class="loading-text">Connecting to your gentle space...</div>
+</div>
+
+<div class="app-container">
+  <!-- WELCOME SCREEN -->
+  <div class="screen welcome-screen active" id="welcomeScreen">
+    <div class="welcome-bg-shapes">
+      <div class="bg-shape"></div><div class="bg-shape"></div><div class="bg-shape"></div>
+      <div class="bg-shape"></div><div class="bg-shape"></div>
+    </div>
+    <div class="welcome-illustration">
+      <svg viewBox="0 0 100 100" fill="none">
+        <circle cx="50" cy="50" r="38" fill="#E8B4B8" opacity="0.2"/>
+        <circle cx="50" cy="50" r="28" fill="#E8B4B8" opacity="0.35"/>
+        <ellipse cx="50" cy="52" rx="18" ry="16" fill="#F5E6D3"/>
+        <path d="M35 46 Q50 36 65 46" stroke="#5C4A3D" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <circle cx="39" cy="40" r="2.5" fill="#5C4A3D"/>
+        <circle cx="61" cy="40" r="2.5" fill="#5C4A3D"/>
+        <path d="M46 56 Q50 60 54 56" stroke="#5C4A3D" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <ellipse cx="28" cy="50" rx="7" ry="10" fill="#E8B4B8" opacity="0.4" transform="rotate(-15 28 50)"/>
+        <ellipse cx="72" cy="50" rx="7" ry="10" fill="#E8B4B8" opacity="0.4" transform="rotate(15 72 50)"/>
+        <circle cx="50" cy="22" r="4" fill="#F0C987" opacity="0.6"/>
+        <circle cx="50" cy="78" r="3" fill="#A8C5A8" opacity="0.5"/>
+      </svg>
+    </div>
+    <div class="welcome-title">Gentle</div>
+    <div class="welcome-subtitle">
+      A soft place to land.<br>
+      No goals. No streaks. No pressure.<br>
+      Just you, being enough.
+    </div>
+    <div class="welcome-promise">✨ We never judge, only hold space</div>
+    <button class="btn-primary" id="beginBtn" onclick="beginGentle()">Begin gently</button>
+  </div>
+
+  <!-- HOME SCREEN -->
+  <div class="screen home-screen" id="homeScreen">
+    <div class="home-header">
+      <div>
+        <div class="greeting" id="greeting">Good morning</div>
+        <div class="date-display" id="dateDisplay"></div>
+        <div class="weather-brief" id="weatherBrief">🌤️ Partly cloudy, 72°F</div>
+      </div>
+      <div class="avatar" onclick="goToProfile()">🌸</div>
+    </div>
+
+    <div class="server-status offline" id="serverStatus">
+      <span class="server-status-dot"></span>
+      <span id="serverStatusText">Offline mode</span>
+    </div>
+
+    <!-- Suspension Banner -->
+    <div class="suspension-banner" id="suspensionBanner">
+      <div class="suspension-icon">🛡️</div>
+      <div class="suspension-content">
+        <div class="suspension-title">Account Temporarily Suspended</div>
+        <div class="suspension-desc" id="suspensionDesc">Your ability to send messages has been paused to keep Gentle safe for everyone.</div>
+        <div class="suspension-timer" id="suspensionTimer">
+          <span>⏳</span><span>Time remaining:</span>
+          <span class="timer-digit" id="timerDays">0</span>d
+          <span class="timer-digit" id="timerHours">0</span>h
+          <span class="timer-digit" id="timerMinutes">0</span>m
+        </div>
+      </div>
+    </div>
+
+    <!-- Seasonal Event Banner -->
+    <div class="seasonal-banner" id="seasonalBanner" style="display:none;">
+      <div class="seasonal-icon">💝</div>
+      <div class="seasonal-content">
+        <div class="seasonal-title">Valentine's Kindness Garden</div>
+        <div class="seasonal-desc">Plant 1M roses by Feb 14. Every shared card blooms a flower.</div>
+      </div>
+      <button class="seasonal-btn" onclick="goToGarden()">Join</button>
+    </div>
+
+    <div class="gentle-streak" id="gentleStreak">
+      <span>🌿</span>
+      <span id="streakText">You have checked in 0 times. Each moment you choose yourself matters.</span>
+    </div>
+
+    <div class="checkin-card" id="checkinCard">
+      <div class="checkin-label">Daily check-in</div>
+      <div class="checkin-question">How is your heart today?</div>
+      <div class="mood-options">
+        <button class="mood-btn" data-mood="sunny" onclick="selectMood(this, 'sunny')">🌤️<span class="mood-label">Sunny</span></button>
+        <button class="mood-btn" data-mood="cloudy" onclick="selectMood(this, 'cloudy')">☁️<span class="mood-label">Cloudy</span></button>
+        <button class="mood-btn" data-mood="rainy" onclick="selectMood(this, 'rainy')">🌧️<span class="mood-label">Rainy</span></button>
+        <button class="mood-btn" data-mood="stormy" onclick="selectMood(this, 'stormy')">⛈️<span class="mood-label">Stormy</span></button>
+      </div>
+    </div>
+
+    <div class="suggestions-header">
+      <div class="section-title">A gentle suggestion</div>
+      <button class="refresh-btn" id="refreshBtn" onclick="refreshSuggestions()" title="New suggestion">🔄</button>
+    </div>
+    <div id="suggestionsArea"></div>
+
+    <div class="journal-section">
+      <div class="section-title">Today I...</div>
+      <div class="journal-prompts">
+        <button class="journal-prompt" onclick="setPrompt('made someone smile')">made someone smile</button>
+        <button class="journal-prompt" onclick="setPrompt('tried my best')">tried my best</button>
+        <button class="journal-prompt" onclick="setPrompt('rested without guilt')">rested without guilt</button>
+        <button class="journal-prompt" onclick="setPrompt('felt grateful for')">felt grateful for</button>
+        <button class="journal-prompt" onclick="setPrompt('found beauty in')">found beauty in</button>
+      </div>
+      <div class="journal-input-wrap">
+        <textarea class="journal-input" id="journalInput" rows="2" placeholder="Anything at all — no matter how small..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitJournal()}"></textarea>
+        <button class="journal-send" id="journalSendBtn" onclick="submitJournal()">✓</button>
+      </div>
+      <div class="journal-entries" id="journalEntries"></div>
+    </div>
+
+    <div class="pass-it-on" id="passItOn">
+      <div class="pass-it-on-title">💌 Pass it on</div>
+      <div class="pass-it-on-desc">Send a tiny spark of warmth to someone, somewhere. They will never know it was you.</div>
+      <div class="pass-it-on-stats" id="kindnessStats">Loading stats...</div>
+      <button class="pass-btn" id="passBtn" onclick="openModal()">Send kindness</button>
+    </div>
+
+    <div class="kindness-feed" id="kindnessFeed">
+      <div class="section-title">Warmth received</div>
+      <div id="receivedKindness"></div>
+    </div>
+  </div>
+
+  <!-- COMPANION CHAT SCREEN -->
+  <div class="screen companion-screen" id="companionScreen">
+    <div class="companion-header">
+      <div class="companion-avatar">
+        <svg viewBox="0 0 100 100" fill="none">
+          <ellipse cx="50" cy="55" rx="35" ry="32" fill="#F5E6D3"/>
+          <circle cx="50" cy="48" r="30" fill="#E8B4B8" opacity="0.3"/>
+          <ellipse cx="35" cy="42" rx="5" ry="7" fill="#5C4A3D" opacity="0.8"/>
+          <ellipse cx="65" cy="42" rx="5" ry="7" fill="#5C4A3D" opacity="0.8"/>
+          <circle cx="37" cy="40" r="2" fill="white"/>
+          <circle cx="67" cy="40" r="2" fill="white"/>
+          <path d="M42 58 Q50 65 58 58" stroke="#5C4A3D" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <ellipse cx="22" cy="50" rx="8" ry="12" fill="#E8B4B8" opacity="0.35" transform="rotate(-20 22 50)"/>
+          <ellipse cx="78" cy="50" rx="8" ry="12" fill="#E8B4B8" opacity="0.35" transform="rotate(20 78 50)"/>
+          <circle cx="50" cy="18" r="5" fill="#F0C987" opacity="0.5"/>
+          <circle cx="50" cy="82" r="4" fill="#A8C5A8" opacity="0.4"/>
+          <path d="M30 75 Q50 85 70 75" stroke="#D4A5A5" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="companion-name">Lumi</div>
+      <div class="companion-status"><span class="companion-status-dot"></span>Here with you</div>
+    </div>
+    <div class="companion-chat" id="companionChat"></div>
+    <div class="companion-input-wrap">
+      <textarea class="companion-input" id="companionInput" rows="1" placeholder="Share what's on your heart..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendCompanionMessage()}"></textarea>
+      <button class="companion-send" id="companionSendBtn" onclick="sendCompanionMessage()">💬</button>
+    </div>
+  </div>
+
+  <!-- GARDEN SCREEN -->
+  <div class="screen garden-screen" id="gardenScreen">
+    <div class="garden-header">
+      <div class="garden-title">🌿 The Garden</div>
+      <div class="garden-subtitle">A living map of collective kindness</div>
+    </div>
+    <div class="garden-goal">
+      <div class="garden-goal-header">
+        <div class="garden-goal-title">🌸 Community Goal: 1 Million Blooms</div>
+        <div class="garden-goal-count" id="gardenGoalCount">0 / 1,000,000</div>
+      </div>
+      <div class="garden-progress-bar">
+        <div class="garden-progress-fill" id="gardenProgressFill" style="width: 0%"></div>
+      </div>
+      <div class="garden-goal-desc">Every kindness message you send plants a flower. Together we grow something beautiful.</div>
+    </div>
+    <div class="garden-map" id="gardenMap">
+      <svg class="garden-map-svg" viewBox="0 0 400 600" preserveAspectRatio="xMidYMid slice">
+        <path d="M50,200 Q100,150 150,180 T250,160 T350,190" stroke="#A8C5A8" stroke-width="1" fill="none" opacity="0.3"/>
+        <path d="M30,300 Q80,250 130,280 T230,260 T330,290" stroke="#A8C5A8" stroke-width="1" fill="none" opacity="0.3"/>
+        <path d="M60,400 Q110,350 160,380 T260,360 T360,390" stroke="#A8C5A8" stroke-width="1" fill="none" opacity="0.3"/>
+        <circle cx="80" cy="220" r="3" fill="#C5B9E0" opacity="0.4"/>
+        <circle cx="200" cy="180" r="4" fill="#E8B4B8" opacity="0.3"/>
+        <circle cx="320" cy="240" r="3" fill="#B8E0D2" opacity="0.4"/>
+        <circle cx="120" cy="320" r="3" fill="#F0C987" opacity="0.3"/>
+        <circle cx="280" cy="300" r="4" fill="#C5B9E0" opacity="0.3"/>
+        <circle cx="180" cy="420" r="3" fill="#A8C5A8" opacity="0.4"/>
+        <circle cx="300" cy="450" r="4" fill="#E8B4B8" opacity="0.3"/>
+      </svg>
+      <div id="gardenDots"></div>
+      <div id="gardenPetals"></div>
+    </div>
+    <div class="garden-message-panel" id="gardenMessagePanel">
+      <div class="garden-message-text" id="gardenMessageText"></div>
+      <div class="garden-message-meta">
+        <span class="garden-message-location" id="gardenMessageLocation"></span>
+        <button class="garden-message-close" onclick="closeGardenMessage()">✕</button>
+      </div>
+    </div>
+    <div class="garden-actions">
+      <button class="garden-action-btn" onclick="openHuddleRoom()">👥 Huddle Room</button>
+      <button class="garden-action-btn primary" onclick="openModal()">🌱 Plant Kindness</button>
+    </div>
+  </div>
+
+  <!-- HUDDLE ROOM SCREEN -->
+  <div class="screen huddle-screen" id="huddleScreen">
+    <div class="huddle-header">
+      <div class="huddle-title">Huddle Room</div>
+      <div class="huddle-subtitle">A soft circle of strangers feeling the same way</div>
+    </div>
+    <div class="huddle-mood-badge" id="huddleMoodBadge">🌤️ Sunny souls</div>
+    <div class="huddle-timer" id="huddleTimer">This room dissolves in 24 hours</div>
+    <div class="huddle-chat" id="huddleChat"></div>
+    <div class="huddle-input-wrap">
+      <textarea class="huddle-input" id="huddleInput" rows="1" placeholder="Send warmth to your huddle..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendHuddleMessage()}"></textarea>
+      <button class="huddle-send" onclick="sendHuddleMessage()">💚</button>
+    </div>
+  </div>
+
+  <!-- RIPPLE CARD SCREEN -->
+  <div class="screen" id="cardScreen" style="padding: 20px 18px 90px;">
+    <div style="text-align: center; margin-bottom: 20px;">
+      <div style="font-size: 32px; margin-bottom: 6px;">🌸</div>
+      <div style="font-size: 20px; font-weight: 800; color: var(--gentle-text);">Bloom This</div>
+      <div style="font-size: 12px; color: var(--soft-brown); margin-top: 3px;">Turn warmth into something shareable</div>
+    </div>
+    <div class="ripple-card-preview" id="rippleCardPreview">
+      <div class="ripple-card-flower" id="cardFlower">🌷</div>
+      <div class="ripple-card-quote" id="cardQuote">"Your presence matters more than you know"</div>
+      <div class="ripple-card-footer">— A gentle stranger</div>
+      <div class="ripple-card-watermark">Sent via Gentle</div>
+    </div>
+    <div class="share-actions">
+      <button class="share-btn" onclick="shareCard()">📤 Share</button>
+      <button class="share-btn" onclick="saveCardToGallery()">💾 Save</button>
+      <button class="share-btn" onclick="newCardFlower()">🌺 New Flower</button>
+    </div>
+    <div style="margin-top: 24px;">
+      <div class="section-title">Your Bloomed Collection</div>
+      <div class="card-gallery" id="cardGallery"></div>
+    </div>
+  </div>
+
+  <!-- RESPONSE SCREEN (kept for fallback) -->
+  <div class="screen response-screen" id="responseScreen">
+    <div class="response-emoji" id="responseEmoji">🌤️</div>
+    <div class="response-title" id="responseTitle">That is lovely</div>
+    <div class="response-message" id="responseMessage">You are doing just fine.</div>
+    <div class="response-quote" id="responseQuote"></div>
+    <div class="response-actions">
+      <button class="btn-secondary" onclick="startBreathing()">🫁 Breathe with me</button>
+      <button class="btn-primary" onclick="backHome()">Back home</button>
+    </div>
+  </div>
+
+  <!-- PROFILE SCREEN -->
+  <div class="screen profile-screen" id="profileScreen">
+    <div class="profile-header">
+      <div class="profile-avatar">🌸</div>
+      <div class="profile-name" id="profileNameDisplay">Kind Soul</div>
+      <div class="profile-bio">Learning to be gentle with myself</div>
+      <div class="profile-stats">
+        <div class="profile-stat"><div class="stat-number" id="statCheckins">0</div><div class="stat-label">Check-ins</div></div>
+        <div class="profile-stat"><div class="stat-number" id="statJournal">0</div><div class="stat-label">Journal entries</div></div>
+        <div class="profile-stat"><div class="stat-number" id="statKindness">0</div><div class="stat-label">Kindness sent</div></div>
+      </div>
+    </div>
+
+    <div class="api-config">
+      <div class="api-config-title">🔌 Server Connection</div>
+      <input type="text" class="api-config-input" id="apiUrlInput" placeholder="https://your-server.com" value="">
+      <button class="api-config-btn" onclick="saveApiUrl()">Connect</button>
+      <div style="font-size:10px;color:var(--soft-brown);margin-top:6px;">Default: localhost:3000</div>
+    </div>
+
+    <div class="profile-section">
+      <div class="profile-section-title">Your week</div>
+      <div class="mood-history" id="moodHistory">
+        <div class="mood-history-item"><span class="mood-history-emoji">?</span><span class="mood-history-day">Mon</span></div>
+        <div class="mood-history-item"><span class="mood-history-emoji">?</span><span class="mood-history-day">Tue</span></div>
+        <div class="mood-history-item"><span class="mood-history-emoji">?</span><span class="mood-history-day">Wed</span></div>
+        <div class="mood-history-item"><span class="mood-history-emoji">?</span><span class="mood-history-day">Thu</span></div>
+        <div class="mood-history-item"><span class="mood-history-emoji">?</span><span class="mood-history-day">Fri</span></div>
+        <div class="mood-history-item"><span class="mood-history-emoji">?</span><span class="mood-history-day">Sat</span></div>
+        <div class="mood-history-item"><span class="mood-history-emoji">?</span><span class="mood-history-day">Sun</span></div>
+      </div>
+    </div>
+
+    <div class="profile-section moderation-history-section">
+      <div class="moderation-history-title">🛡️ Moderation History</div>
+      <div id="moderationHistoryList">
+        <div class="empty-state" style="padding: 20px;">
+          <div class="empty-state-emoji" style="font-size: 32px;">✨</div>
+          <div class="empty-state-text" style="font-size: 13px;">Clean record</div>
+          <div class="empty-state-sub" style="font-size: 11px;">No moderation actions on your account</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <div class="profile-section-title">Preferences</div>
+      <div class="setting-item">
+        <div><div class="setting-label">Daily reminder</div><div class="setting-desc">A gentle nudge at 9am</div></div>
+        <div class="toggle active" onclick="toggleThis(this)"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="setting-item">
+        <div><div class="setting-label">Evening wind-down</div><div class="setting-desc">Soft check-in at 8pm</div></div>
+        <div class="toggle" onclick="toggleThis(this)"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="setting-item">
+        <div><div class="setting-label">Kindness notifications</div><div class="setting-desc">When someone sends you warmth</div></div>
+        <div class="toggle active" onclick="toggleThis(this)"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="setting-item">
+        <div><div class="setting-label">Dark mode</div><div class="setting-desc">Gentle on the eyes at night</div></div>
+        <div class="toggle" onclick="toggleThis(this)"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+
+    <div class="upgrade-banner" onclick="upgradeToPlus()">
+      <span class="upgrade-banner-icon">✨</span>
+      <div class="upgrade-banner-text">
+        <div class="upgrade-banner-title">Gentle Plus</div>
+        <div class="upgrade-banner-desc">Unlimited kindness, deeper insights</div>
+      </div>
+      <button class="upgrade-banner-btn" id="upgradeBtn">$3.99/mo</button>
+    </div>
+  </div>
+
+  <!-- KINDNESS SCREEN -->
+  <div class="screen kindness-screen" id="kindnessScreen">
+    <div class="kindness-header">
+      <div class="kindness-header-emoji">💚</div>
+      <div class="kindness-header-title">Pass It On</div>
+      <div class="kindness-header-desc">Anonymous warmth, traveling the world</div>
+    </div>
+    <div class="send-kindness-card">
+      <div class="send-kindness-title">Send a little warmth</div>
+      <div class="send-kindness-desc">Your message will reach a stranger somewhere. No names, no faces — just kindness.</div>
+      <button class="pass-btn" style="background: rgba(255,255,255,0.3);" onclick="openModal()">Write a message</button>
+    </div>
+    <div class="received-title">📬 Warmth you have received</div>
+    <div id="kindnessList">
+      <div class="empty-state">
+        <div class="empty-state-emoji">💌</div>
+        <div class="empty-state-text">No warmth yet</div>
+        <div class="empty-state-sub">Check in daily to receive kindness from strangers</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JOURNAL SCREEN -->
+  <div class="screen journal-screen" id="journalScreen">
+    <div class="journal-screen-header">
+      <div class="journal-screen-title">Your journal</div>
+      <div class="journal-screen-sub">All your tiny moments, kept safe</div>
+    </div>
+    <div class="journal-input-wrap" style="margin-bottom: 16px;">
+      <textarea class="journal-input" id="journalInputFull" rows="3" placeholder="What is on your heart right now?" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitJournalFull()}"></textarea>
+      <button class="journal-send" onclick="submitJournalFull()">✓</button>
+    </div>
+    <div id="journalListFull">
+      <div class="empty-state">
+        <div class="empty-state-emoji">📝</div>
+        <div class="empty-state-text">Your journal is empty</div>
+        <div class="empty-state-sub">Write your first tiny moment above</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav" id="bottomNav" style="display: none;">
+    <div class="nav-item active" onclick="switchTab('home')">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Home</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('garden')">
+      <span class="nav-icon">🌿</span>
+      <span class="nav-label">Garden</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('journal')">
+      <span class="nav-icon">📝</span>
+      <span class="nav-label">Journal</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('profile')">
+      <span class="nav-icon">🌸</span>
+      <span class="nav-label">You</span>
+    </div>
+  </div>
+</div>
+
+<!-- COMPANION FAB -->
+<div class="companion-fab" id="companionFab" onclick="openCompanion()">
+  🐰
+  <div class="companion-fab-badge" id="companionBadge" style="display:none;">1</div>
+</div>
+
+<!-- BREATHING OVERLAY -->
+<div class="breathing-overlay" id="breathingOverlay">
+  <div class="breathing-circle">
+    <div class="breathing-circle-inner">
+      <div class="breathing-text" id="breathingText">Breathe in</div>
+    </div>
+  </div>
+  <div class="breathing-instruction">Follow the circle</div>
+  <div class="breathing-sub">Inhale as it grows, exhale as it shrinks</div>
+  <button class="btn-secondary" onclick="closeBreathing()">I am ready</button>
+</div>
+
+<!-- PASS IT ON MODAL -->
+<div class="modal-overlay" id="passModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-emoji">💌</div>
+    <div class="modal-title">Send a little warmth</div>
+    <div class="modal-desc">Your message will reach a stranger somewhere in the world. Anonymous and kind.</div>
+    <div class="modal-presets">
+      <button class="preset-btn" onclick="setPreset('You are doing better than you think')">You are doing better than you think</button>
+      <button class="preset-btn" onclick="setPreset('Your presence matters more than you know')">Your presence matters</button>
+      <button class="preset-btn" onclick="setPreset('Take a deep breath. You have got this.')">Take a deep breath</button>
+      <button class="preset-btn" onclick="setPreset('Someone, somewhere, is grateful you exist')">Someone is grateful</button>
+      <button class="preset-btn" onclick="setPreset('Rest is not laziness. It is necessary.')">Rest is necessary</button>
+      <button class="preset-btn" onclick="setPreset('You are enough, exactly as you are')">You are enough</button>
+    </div>
+    <textarea class="modal-input" id="kindnessInput" rows="2" placeholder="Or write your own..." maxlength="200"></textarea>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Maybe later</button>
+      <button class="modal-btn modal-btn-send" id="sendKindnessBtn" onclick="sendKindness()">Send warmth</button>
+    </div>
+  </div>
+</div>
+
+<!-- OFFENSE NOTIFICATION MODAL -->
+<div class="modal-overlay offense-modal" id="offenseModal" onclick="if(event.target===this)closeOffenseModal()">
+  <div class="modal">
+    <div class="offense-header">
+      <div class="offense-icon">🛡️</div>
+      <div class="offense-title-group">
+        <div class="offense-title">Message Blocked</div>
+        <div class="offense-subtitle">Our AI moderation system detected inappropriate content</div>
+      </div>
+    </div>
+    <div class="offense-details">
+      <div class="offense-label">Flagged Content</div>
+      <div class="offense-text" id="offenseText">Your message contained language that violates our community guidelines.</div>
+      <div class="offense-violations" id="offenseViolations"></div>
+    </div>
+    <div class="offense-consequence">
+      <div class="offense-consequence-title">Consequences Applied</div>
+      <ul class="offense-consequence-list">
+        <li>Message deleted and not delivered</li>
+        <li>Account suspended from sending for 7 days</li>
+        <li>Violation recorded on your account</li>
+      </ul>
+    </div>
+    <div style="font-size: 12px; color: var(--soft-brown); line-height: 1.5; margin-bottom: 16px;">
+      Gentle is a safe space for everyone. We use AI to automatically filter harmful content. If you believe this was a mistake, your suspension will still lift automatically after 7 days.
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-send" onclick="acknowledgeOffenseAndClose()" style="background: linear-gradient(135deg, #EF9A9A, #C62828);">I Understand</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUSPENSION CHECK MODAL -->
+<div class="modal-overlay offense-modal" id="suspensionCheckModal" onclick="if(event.target===this)closeSuspensionCheckModal()">
+  <div class="modal">
+    <div class="offense-header">
+      <div class="offense-icon">⏳</div>
+      <div class="offense-title-group">
+        <div class="offense-title">Sending Paused</div>
+        <div class="offense-subtitle">You are currently suspended from sending messages</div>
+      </div>
+    </div>
+    <div class="offense-consequence">
+      <div class="offense-consequence-title">Suspension Details</div>
+      <ul class="offense-consequence-list">
+        <li id="suspensionCheckReason">Violation of community guidelines</li>
+        <li>You can still receive messages and use all other features</li>
+        <li>Your suspension will lift automatically</li>
+      </ul>
+    </div>
+    <div class="suspension-timer" style="margin-bottom: 16px; width: 100%; justify-content: center;">
+      <span>⏳</span><span>Time remaining:</span>
+      <span class="timer-digit" id="checkTimerDays">0</span>d
+      <span class="timer-digit" id="checkTimerHours">0</span>h
+      <span class="timer-digit" id="checkTimerMinutes">0</span>m
+    </div>
+    <div style="font-size: 12px; color: var(--soft-brown); line-height: 1.5; margin-bottom: 16px;">
+      Use this time to reflect. Gentle is here for you — even when we need to pause sending to keep our community safe.
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" onclick="closeSuspensionCheckModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAME INPUT MODAL -->
+<div class="modal-overlay name-modal" id="nameModal">
+  <div class="modal">
+    <div class="modal-emoji">🐰</div>
+    <div class="modal-title">What should I call you?</div>
+    <div class="modal-desc">I am Lumi, your gentle companion. I would love to know your name so I can remember you.</div>
+    <input type="text" class="name-input" id="nameInput" placeholder="Your name" maxlength="20">
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-send" onclick="saveCompanionName()">Continue gently</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+
+// ===== CONFIGURATION =====
+const DEFAULT_API_URL = 'http://localhost:3000';
+let API_URL = localStorage.getItem('gentle_api_url') || DEFAULT_API_URL;
+let currentUser = null;
+let currentMood = null;
+let isOnline = false;
+let breathingInterval = null;
+
+const suggestions = {
+  sunny: [
+    { icon: '🌿', title: 'Savor it', desc: 'Take a photo of something beautiful you noticed today. No need to post it — just keep it for you.', color: '#A8C5A8', action: 'Capture a moment', accent: '#A8C5A8' },
+    { icon: '🎵', title: 'Share the warmth', desc: 'Send a voice note to someone you love. Just 10 seconds of "thinking of you."', color: '#E8B4B8', action: 'Record voice note', accent: '#E8B4B8' },
+    { icon: '🚶', title: 'Wander gently', desc: 'Take a 5-minute walk with no destination. Notice three things you usually miss.', color: '#F0C987', action: 'Start wandering', accent: '#F0C987' }
+  ],
+  cloudy: [
+    { icon: '🍵', title: 'Warmth in a cup', desc: 'Make yourself a hot drink and hold it with both hands. Feel the warmth for 30 seconds.', color: '#D4A5A5', action: 'Brew something warm', accent: '#D4A5A5' },
+    { icon: '📖', title: 'A soft escape', desc: 'Read one page of a book you loved as a child. Remember that feeling.', color: '#B8C4CE', action: 'Open a book', accent: '#B8C4CE' },
+    { icon: '🎧', title: 'Sound bath', desc: 'Put on a song from a calm moment in your life. Close your eyes. Breathe.', color: '#9BAEC2', action: 'Play a memory', accent: '#9BAEC2' }
+  ],
+  rainy: [
+    { icon: '🛁', title: 'Cozy reset', desc: 'Take a warm shower or bath. Let the water carry the weight for a little while.', color: '#9BAEC2', action: 'Step into warmth', accent: '#9BAEC2' },
+    { icon: '📺', title: 'Comfort watch', desc: 'Watch 10 minutes of something that makes you feel safe. A show, a video, anything.', color: '#B8C4CE', action: 'Find comfort', accent: '#B8C4CE' },
+    { icon: '🤗', title: 'Hug yourself', desc: 'Wrap your arms around yourself and squeeze gently for 10 seconds. You deserve it.', color: '#D4A5A5', action: 'Give a hug', accent: '#D4A5A5' }
+  ],
+  stormy: [
+    { icon: '🫂', title: 'You are not alone', desc: 'Text one person: "No reason, just thinking of you." You do not need to explain.', color: '#D4A5A5', action: 'Reach out', accent: '#D4A5A5' },
+    { icon: '😴', title: 'Permission to rest', desc: 'Lie down for 10 minutes. No phone. No guilt. Just rest. That is enough for today.', color: '#7A8FA6', action: 'Rest now', accent: '#7A8FA6' },
+    { icon: '🌊', title: 'Let it out', desc: 'Write three sentences about what is heavy. Then tear the paper up or delete it. Release.', color: '#9BAEC2', action: 'Write and release', accent: '#9BAEC2' }
+  ]
+};
+
+const responses = {
+  sunny: { emoji: '🌤️', title: "That is lovely", message: "You are doing just fine. The sun feels good, does not it?", quote: "The sun himself is weak when he first rises, and gathers strength and courage as the day gets on. — Charles Dickens" },
+  cloudy: { emoji: '☁️', title: "That is okay too", message: "Cloudy days are still days. You are still here, and that matters.", quote: "There is a kind of happiness and wonder that makes you serious. It is too good to grasp. — C.S. Lewis" },
+  rainy: { emoji: '🌧️', title: "Sending you shelter", message: "Rainy days pass. You are allowed to slow down and just be.", quote: "Some people feel the rain. Others just get wet. — Bob Marley" },
+  stormy: { emoji: '⛈️', title: "Holding space for you", message: "Storms are hard. But you have survived every single one before.", quote: "This too shall pass. It may pass like a kidney stone, but it will pass. — Unknown" }
+};
+
+const moodColors = { sunny: '#F0C987', cloudy: '#B8C4CE', rainy: '#9BAEC2', stormy: '#7A8FA6' };
+const moodEmojis = { sunny: '🌤️', cloudy: '☁️', rainy: '🌧️', stormy: '⛈️' };
+
+// ===== AI MODERATION SYSTEM =====
+const MODERATION_CONFIG = {
+  suspensionDays: 7,
+  patterns: [
+    /\b(f+u+c+k+|f+u+c+k+i+n+g|f+u+c+k+e+d|f+u+c+k+s|m+o+t+h+e+r+f+u+c+k+e+r)\b/gi,
+    /\b(s+h+[i1]+t+|s+h+[i1]+t+t+y|b+u+l+l+s+h+[i1]+t|h+o+r+s+h+[i1]+t)\b/gi,
+    /\b(b+[i1]+t+c+h+|b+[i1]+t+c+h+e+s|b+[i1]+t+c+h+[i1]+n+g)\b/gi,
+    /\b(a+s+s+h+o+l+e+|a+s+s+w+i+p+e|d+u+m+b+a+s+s|l+a+m+e+a+s+s)\b/gi,
+    /\b(n+[i1]+g+g+[e3]+r+|n+[i1]+g+g+a+|n+[i1]+g+g+[e3]+r+s)\b/gi,
+    /\b(r+[e3]+t+[a4]+r+d+|r+[e3]+t+[a4]+r+d+s|r+[e3]+t+[a4]+r+d+e+d)\b/gi,
+    /\b(f+a+g+|f+a+g+g+o+t+|d+y+k+e+|h+o+m+o+s+e+x+u+a+l+s+l+u+r)\b/gi,
+    /\b(c+u+n+t+|c+u+n+t+s|p+u+s+s+y|d+[i1]+c+k+)\b/gi,
+    /\b(s+l+u+t+|w+h+o+r+e+|t+w+a+t+|h+o+e+)\b/gi,
+    /\b(r+a+p+e+|r+a+p+i+s+t+|m+o+l+[e3]+s+t+|p+[e3]+d+o+)\b/gi,
+    /\b(k+[i1]+l+l+ +y+o+u+r+s+e+l+f+|k+y+s|k+[i1]+l+l+ +m+e+|d+[i1]+e+ +p+l+[e3]+a+s+e)\b/gi,
+    /\b(k+[i1]+l+l+ +y+o+u+|m+u+r+d+[e3]+r+|s+t+a+b+|s+h+o+o+t+)\b/gi,
+    /\b(h+a+n+g+ +y+o+u+r+s+e+l+f+|s+l+[i1]+t+ +w+r+[i1]+s+t+s)\b/gi,
+    /\b(h+a+t+e+ +y+o+u+|i+ +h+a+t+e+ +y+o+u+|g+o+ +d+[i1]+e+)\b/gi,
+    /\b(u+ +s+u+c+k+|y+o+u+ +s+u+c+k+|s+t+f+u+|g+t+f+o+)\b/gi,
+    /\b(d+[i1]+e+ +i+n+ +a+ +f+i+r+e+|b+u+r+n+ +i+n+ +h+[e3]+l+l+)\b/gi,
+    /\b(r+e+t+a+r+d+|s+p+a+s+t+[i1]+c+|c+r+[i1]+p+p+l+[e3]+)\b/gi,
+    /\b(c+h+[i1]+n+k+|g+o+o+k+|w+e+t+b+a+c+k+|b+e+a+n+[e3]+r)\b/gi,
+    /\b(t+r+a+n+n+y+|s+h+e+m+a+l+e+|h+e+s+h+[i1]+r+)\b/gi
+  ],
+  wordLists: {
+    high: ['kill yourself', 'kys', 'end your life', 'suicide', 'rape', 'rapist', 'molest', 'pedophile', 'nazi', 'terrorist'],
+    medium: ['hate you', 'die', 'stupid', 'idiot', 'moron', 'dumb', 'loser', 'worthless', 'pathetic', 'disgusting', 'trash', 'garbage'],
+    low: ['shut up', 'go away', 'leave me alone', 'annoying', 'weirdo', 'freak', 'creep']
+  },
+  maxCapsRatio: 0.75,
+  minCapsLength: 8
+};
+
+function checkMessageModeration(text) {
+  if (!text || typeof text !== 'string') return { clean: true, violations: [], severity: 'clean' };
+  const violations = [];
+  let severity = 'clean';
+  const lowerText = text.toLowerCase();
+  for (const pattern of MODERATION_CONFIG.patterns) {
+    const matches = text.match(pattern);
+    if (matches) { violations.push(...matches.map(m => m.trim())); severity = 'high'; }
+  }
+  for (const [level, words] of Object.entries(MODERATION_CONFIG.wordLists)) {
+    for (const word of words) {
+      if (lowerText.includes(word)) {
+        violations.push(word);
+        if (level === 'high') severity = 'high';
+        else if (level === 'medium' && severity !== 'high') severity = 'medium';
+        else if (level === 'low' && severity === 'clean') severity = 'low';
+      }
+    }
+  }
+  const lettersOnly = text.replace(/[^a-zA-Z]/g, '');
+  if (lettersOnly.length >= MODERATION_CONFIG.minCapsLength) {
+    const capsCount = lettersOnly.replace(/[^A-Z]/g, '').length;
+    if (capsCount / lettersOnly.length >= MODERATION_CONFIG.maxCapsRatio) {
+      violations.push('EXCESSIVE_SHOUTING');
+      if (severity === 'clean') severity = 'low';
+    }
+  }
+  if (/[!]{3,}/.test(text) || /[?]{3,}/.test(text)) {
+    violations.push('AGGRESSIVE_PUNCTUATION');
+    if (severity === 'clean') severity = 'low';
+  }
+  return { clean: violations.length === 0, violations: [...new Set(violations)], severity, originalText: text };
+}
+
+function isUserSuspended() {
+  const suspensionEnd = localStorage.getItem('gentle_suspension_end');
+  const suspensionReason = localStorage.getItem('gentle_suspension_reason') || 'Violation of community guidelines';
+  if (!suspensionEnd) return false;
+  const endTime = parseInt(suspensionEnd);
+  if (Date.now() >= endTime) {
+    localStorage.removeItem('gentle_suspension_end');
+    localStorage.removeItem('gentle_suspension_reason');
+    return false;
+  }
+  return { until: endTime, reason: suspensionReason };
+}
+
+function getSuspensionTimeRemaining() {
+  const suspension = isUserSuspended();
+  if (!suspension) return null;
+  const remaining = suspension.until - Date.now();
+  if (remaining <= 0) {
+    localStorage.removeItem('gentle_suspension_end');
+    localStorage.removeItem('gentle_suspension_reason');
+    return null;
+  }
+  const days = Math.floor(remaining / (24 * 60 * 60 * 1000));
+  const hours = Math.floor((remaining % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+  const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+  return { days, hours, minutes, until: suspension.until, reason: suspension.reason };
+}
+
+function suspendUser(days, reason, violations) {
+  const endTime = Date.now() + (days * 24 * 60 * 60 * 1000);
+  localStorage.setItem('gentle_suspension_end', endTime.toString());
+  localStorage.setItem('gentle_suspension_reason', reason);
+  const offense = {
+    id: 'offense_' + Date.now(),
+    date: new Date().toISOString(),
+    reason,
+    violations: violations || [],
+    suspensionDays: days,
+    suspensionEnd: new Date(endTime).toISOString(),
+    acknowledged: false,
+    active: true
+  };
+  const history = JSON.parse(localStorage.getItem('gentle_moderation_history') || '[]');
+  history.unshift(offense);
+  localStorage.setItem('gentle_moderation_history', JSON.stringify(history));
+  return offense;
+}
+
+function getModerationHistory() {
+  return JSON.parse(localStorage.getItem('gentle_moderation_history') || '[]');
+}
+
+function acknowledgeOffense(offenseId) {
+  const history = getModerationHistory();
+  const offense = history.find(o => o.id === offenseId);
+  if (offense) { offense.acknowledged = true; localStorage.setItem('gentle_moderation_history', JSON.stringify(history)); }
+}
+
+function hasUnacknowledgedOffenses() {
+  return getModerationHistory().some(o => !o.acknowledged);
+}
+
+function updateSuspensionUI() {
+  const banner = document.getElementById('suspensionBanner');
+  const timer = getSuspensionTimeRemaining();
+  if (timer) {
+    banner.classList.add('active');
+    document.getElementById('suspensionDesc').textContent = timer.reason || 'Your ability to send messages has been paused to keep Gentle safe for everyone.';
+    updateSuspensionTimerDisplay(timer);
+    const sendBtn = document.getElementById('sendKindnessBtn');
+    if (sendBtn) sendBtn.disabled = true;
+    const passBtn = document.getElementById('passBtn');
+    if (passBtn) { passBtn.disabled = true; passBtn.textContent = 'Sending paused'; passBtn.style.opacity = '0.6'; }
+  } else {
+    banner.classList.remove('active');
+    const sendBtn = document.getElementById('sendKindnessBtn');
+    if (sendBtn) sendBtn.disabled = false;
+    const passBtn = document.getElementById('passBtn');
+    if (passBtn) { passBtn.disabled = false; passBtn.textContent = 'Send kindness'; passBtn.style.opacity = '1'; }
+  }
+}
+
+function updateSuspensionTimerDisplay(timer) {
+  const daysEl = document.getElementById('timerDays');
+  const hoursEl = document.getElementById('timerHours');
+  const minutesEl = document.getElementById('timerMinutes');
+  if (daysEl) daysEl.textContent = timer.days;
+  if (hoursEl) hoursEl.textContent = timer.hours;
+  if (minutesEl) minutesEl.textContent = timer.minutes;
+}
+
+function startSuspensionTimer() {
+  updateSuspensionUI();
+  setInterval(() => {
+    const timer = getSuspensionTimeRemaining();
+    if (timer) { updateSuspensionTimerDisplay(timer); }
+    else {
+      const banner = document.getElementById('suspensionBanner');
+      if (banner && banner.classList.contains('active')) {
+        banner.classList.remove('active');
+        showToast('✅ Your suspension has been lifted. Please be kind.');
+        updateSuspensionUI();
+      }
+    }
+  }, 60000);
+}
+
+function showOffenseModal(offense) {
+  document.getElementById('offenseText').textContent = offense.reason || 'Your message contained inappropriate content.';
+  const violationsContainer = document.getElementById('offenseViolations');
+  violationsContainer.innerHTML = '';
+  if (offense.violations && offense.violations.length > 0) {
+    offense.violations.forEach(v => {
+      const tag = document.createElement('span');
+      tag.className = 'violation-tag';
+      tag.textContent = v;
+      violationsContainer.appendChild(tag);
+    });
+  }
+  document.getElementById('offenseModal').classList.add('active');
+}
+
+function closeOffenseModal() { document.getElementById('offenseModal').classList.remove('active'); }
+
+function acknowledgeOffenseAndClose() {
+  const history = getModerationHistory();
+  if (history.length > 0 && !history[0].acknowledged) {
+    history[0].acknowledged = true;
+    localStorage.setItem('gentle_moderation_history', JSON.stringify(history));
+  }
+  closeOffenseModal();
+  updateSuspensionUI();
+  renderModerationHistory();
+}
+
+function showSuspensionModal(timer) {
+  document.getElementById('suspensionCheckReason').textContent = timer.reason || 'Violation of community guidelines';
+  document.getElementById('checkTimerDays').textContent = timer.days;
+  document.getElementById('checkTimerHours').textContent = timer.hours;
+  document.getElementById('checkTimerMinutes').textContent = timer.minutes;
+  document.getElementById('suspensionCheckModal').classList.add('active');
+}
+
+function closeSuspensionCheckModal() { document.getElementById('suspensionCheckModal').classList.remove('active'); }
+
+function renderModerationHistory() {
+  const container = document.getElementById('moderationHistoryList');
+  if (!container) return;
+  const history = getModerationHistory();
+  if (history.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="padding: 20px;"><div class="empty-state-emoji" style="font-size: 32px;">✨</div><div class="empty-state-text" style="font-size: 13px;">Clean record</div><div class="empty-state-sub" style="font-size: 11px;">No moderation actions on your account</div></div>';
+    return;
+  }
+  container.innerHTML = history.map(offense => {
+    const isActive = new Date(offense.suspensionEnd) > new Date();
+    const date = new Date(offense.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return '<div class="offense-card"><div class="offense-card-header"><span class="offense-card-date">' + date + '</span><span class="offense-card-status ' + (isActive ? 'active' : 'resolved') + '">' + (isActive ? 'ACTIVE' : 'RESOLVED') + '</span></div><div class="offense-card-reason">' + offense.reason + '</div><div class="offense-card-meta">' + offense.violations.slice(0, 3).map(v => '<span class="violation-tag" style="margin-right:4px;">' + v + '</span>').join('') + (offense.suspensionDays ? ' · ' + offense.suspensionDays + '-day suspension' : '') + '</div></div>';
+  }).join('');
+}
+
+function reportKindness(kindnessId) {
+  showToast('🛡️ Thank you for reporting. Our AI will review this message.');
+}
+
+// ===== API FUNCTIONS =====
+async function apiCall(endpoint, options = {}) {
+  try {
+    const url = API_URL + endpoint;
+    const res = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', ...options.headers } });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  } catch (err) { console.error('API Error:', err); throw err; }
+}
+
+async function authUser() {
+  let deviceToken = localStorage.getItem('gentle_device_token');
+  if (!deviceToken) {
+    deviceToken = 'gentle_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('gentle_device_token', deviceToken);
+  }
+  try {
+    const data = await apiCall('/api/auth', { method: 'POST', body: JSON.stringify({ deviceToken }) });
+    currentUser = data; isOnline = true; updateServerStatus(true); return data;
+  } catch (err) {
+    isOnline = false; updateServerStatus(false);
+    currentUser = { userId: deviceToken, isPlus: false, kindnessSent: parseInt(localStorage.getItem('gentle_kindness_sent') || '0'), kindnessReceived: parseInt(localStorage.getItem('gentle_kindness_received') || '0') };
+    return currentUser;
+  }
+}
+
+async function sendKindnessToServer(text, moodTag) {
+  if (!isOnline || !currentUser) {
+    const sent = parseInt(localStorage.getItem('gentle_kindness_sent') || '0');
+    localStorage.setItem('gentle_kindness_sent', sent + 1);
+    addGardenDot(moodTag || 'sunny', text);
+    return { success: true, message: 'Saved locally (server offline)' };
+  }
+  try {
+    const data = await apiCall('/api/kindness/send', { method: 'POST', body: JSON.stringify({ userId: currentUser.userId, text, moodTag }) });
+    currentUser.kindnessSent = (currentUser.kindnessSent || 0) + 1;
+    addGardenDot(moodTag || 'sunny', text);
+    updateStats(); return data;
+  } catch (err) {
+    if (err.message.includes('429')) return { error: 'Daily limit reached. Upgrade to Gentle Plus for unlimited kindness.' };
+    throw err;
+  }
+}
+
+async function receiveKindnessFromServer() {
+  if (!isOnline || !currentUser) return null;
+  try {
+    const data = await apiCall('/api/kindness/receive/' + currentUser.userId);
+    if (data.kindness) { currentUser.kindnessReceived = (currentUser.kindnessReceived || 0) + 1; updateStats(); }
+    return data.kindness;
+  } catch (err) { return null; }
+}
+
+async function getKindnessHistory() {
+  if (!isOnline || !currentUser) return [];
+  try { const data = await apiCall('/api/kindness/history/' + currentUser.userId); return data; }
+  catch (err) { return []; }
+}
+
+async function saveJournalEntry(text, mood) {
+  const entries = JSON.parse(localStorage.getItem('gentle_journal') || '[]');
+  entries.unshift({ text, mood, date: new Date().toISOString() });
+  localStorage.setItem('gentle_journal', JSON.stringify(entries));
+  if (isOnline && currentUser) {
+    try { await apiCall('/api/journal', { method: 'POST', body: JSON.stringify({ userId: currentUser.userId, text, mood }) }); }
+    catch (err) { console.log('Journal sync failed, kept locally'); }
+  }
+  return { success: true };
+}
+
+async function getJournalEntries() {
+  const local = JSON.parse(localStorage.getItem('gentle_journal') || '[]');
+  if (isOnline && currentUser) {
+    try { const serverEntries = await apiCall('/api/journal/' + currentUser.userId); const merged = [...serverEntries, ...local]; return merged.slice(0, 50); }
+    catch (err) { return local; }
+  }
+  return local;
+}
+
+async function saveMood(mood) {
+  const moods = JSON.parse(localStorage.getItem('gentle_moods') || '[]');
+  moods.push({ mood, date: new Date().toISOString() });
+  localStorage.setItem('gentle_moods', JSON.stringify(moods));
+  if (isOnline && currentUser) {
+    try { await apiCall('/api/mood', { method: 'POST', body: JSON.stringify({ userId: currentUser.userId, mood }) }); }
+    catch (err) {}
+  }
+}
+
+async function getGlobalStats() {
+  if (!isOnline) {
+    return { totalKindness: parseInt(localStorage.getItem('gentle_total_kindness') || '4200000'), todayKindness: parseInt(localStorage.getItem('gentle_today_kindness') || '12847') };
+  }
+  try {
+    const data = await apiCall('/api/stats');
+    localStorage.setItem('gentle_total_kindness', data.totalKindness);
+    localStorage.setItem('gentle_today_kindness', data.todayKindness);
+    return data;
+  } catch (err) { return { totalKindness: 4200000, todayKindness: 12847 }; }
+}
+
+async function upgradeToPlusServer() {
+  if (!isOnline || !currentUser) { showToast('⚠️ Connect to server first'); return false; }
+  try {
+    await apiCall('/api/upgrade', { method: 'POST', body: JSON.stringify({ userId: currentUser.userId }) });
+    currentUser.isPlus = true; showToast('✨ Welcome to Gentle Plus!'); updateStats(); return true;
+  } catch (err) { showToast('❌ Upgrade failed. Try again later.'); return false; }
+}
+
+// ===== UI FUNCTIONS =====
+function updateServerStatus(online) {
+  const status = document.getElementById('serverStatus');
+  const text = document.getElementById('serverStatusText');
+  if (online) { status.className = 'server-status online'; text.textContent = 'Connected to server'; }
+  else { status.className = 'server-status offline'; text.textContent = 'Offline mode — data saved locally'; }
+}
+
+function updateStats() {
+  if (currentUser) {
+    document.getElementById('statCheckins').textContent = JSON.parse(localStorage.getItem('gentle_moods') || '[]').length;
+    document.getElementById('statJournal').textContent = JSON.parse(localStorage.getItem('gentle_journal') || '[]').length;
+    document.getElementById('statKindness').textContent = currentUser.kindnessSent || 0;
+    document.getElementById('streakText').textContent = 'You have checked in ' + JSON.parse(localStorage.getItem('gentle_moods') || '[]').length + ' times. Each moment you choose yourself matters.';
+  }
+}
+
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function setLoading(show) {
+  document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+}
+
+// ===== COMPANION SYSTEM =====
+const COMPANION_NAME = 'Lumi';
+const companionMemory = {
+  getName: () => localStorage.getItem('gentle_companion_name') || null,
+  setName: (name) => localStorage.setItem('gentle_companion_name', name),
+  getHistory: () => JSON.parse(localStorage.getItem('gentle_companion_history') || '[]'),
+  addMessage: (role, text) => {
+    const history = companionMemory.getHistory();
+    history.push({ role, text, time: new Date().toISOString() });
+    if (history.length > 100) history.shift();
+    localStorage.setItem('gentle_companion_history', JSON.stringify(history));
+  },
+  getFacts: () => JSON.parse(localStorage.getItem('gentle_companion_facts') || '[]'),
+  addFact: (fact) => {
+    const facts = companionMemory.getFacts();
+    facts.push({ fact, date: new Date().toISOString() });
+    if (facts.length > 20) facts.shift();
+    localStorage.setItem('gentle_companion_facts', JSON.stringify(facts));
+  },
+  getLastMood: () => {
+    const moods = JSON.parse(localStorage.getItem('gentle_moods') || '[]');
+    return moods.length > 0 ? moods[moods.length - 1] : null;
+  },
+  getCheckInCount: () => JSON.parse(localStorage.getItem('gentle_moods') || '[]').length
+};
+
+const companionResponses = {
+  sunny: {
+    greetings: ["The sun is shining and so are you! ☀️", "What a lovely mood you're in today!", "I can feel the warmth from here.", "Sunny days with you are my favorite."],
+    followUps: ["What's making today bright?", "Tell me about something good that happened.", "Who or what brought you sunshine today?", "What are you looking forward to?"],
+    encouragements: ["Keep soaking up that sunshine!", "Your joy is contagious — spread it!", "You deserve every bit of this happiness.", "Hold onto this feeling."],
+    memories: ["Last time you were sunny, you mentioned something wonderful. Tell me more good things.", "You have such a bright spirit. I remember."]
+  },
+  cloudy: {
+    greetings: ["Even cloudy days have their beauty. ☁️", "I'm here with you in the quiet.", "Cloudy skies still hold light. So do you.", "Some days are just... quiet. That's okay."],
+    followUps: ["Is there anything weighing on your mind?", "What's making today feel gray?", "Do you want to talk about it, or just sit together?", "What would make today a little softer?"],
+    encouragements: ["Clouds pass. You don't have to.", "It's okay to not be okay.", "You're still here. That matters more than you know.", "I'm holding space for you."],
+    memories: ["I remember you felt cloudy before, and you made it through. You're stronger than you think."]
+  },
+  rainy: {
+    greetings: ["Rainy days are for resting. 🌧️", "The world is quieter today. Listen.", "It's okay to slow down when it rains.", "Rain washes things clean. Including heavy hearts."],
+    followUps: ["What feels heavy right now?", "Is there something you need to let go of?", "What would feel like shelter to you today?", "Who has been kind to you lately?"],
+    encouragements: ["Rainy days pass. You are allowed to just be.", "Rest is not laziness. It is necessary.", "You're doing enough by simply existing today.", "The rain can't last forever. Neither can this feeling."],
+    memories: ["Last time it rained in your heart, you found shelter. You'll find it again."]
+  },
+  stormy: {
+    greetings: ["Storms are hard. But you have survived every single one before. ⛈️", "I'm right here with you.", "This is a lot. You don't have to carry it alone.", "Breathe. One breath at a time."],
+    followUps: ["What's the hardest part right now?", "Do you need comfort or solutions?", "What do you need to hear right now?", "Is there one small thing that could help?"],
+    encouragements: ["You have survived 100% of your worst days. That's a perfect record.", "Storms don't last. But your strength does.", "You don't have to be okay right now. Just be.", "I'm so proud of you for checking in."],
+    memories: ["I remember when you weathered a storm before. You came out the other side. You will again."]
+  }
+};
+
+const companionTopics = {
+  work: ["Work can be so much. Remember, you are more than what you produce.", "Your worth isn't measured by your output.", "Even on hard work days, you matter."],
+  family: ["Family is complicated. Your feelings about them are valid.", "You can love someone and need space from them.", "Boundaries are a form of love too."],
+  friend: ["Friendships ebb and flow. That's natural.", "The right people will make you feel lighter.", "You deserve friends who see your light."],
+  tired: ["Rest is not a reward. It's a requirement.", "Your body is asking for something. Listen.", "Even doing 'nothing' is doing something important."],
+  happy: ["I'm so happy you're happy! Tell me everything!", "This joy is yours. Soak it in.", "You deserve every good thing coming your way."],
+  sad: ["It's okay to feel sad. Your feelings are valid.", "Sadness is not weakness. It's being human.", "I'm here. You're not alone in this."],
+  anxious: ["Breathe with me. In for 4... hold for 4... out for 4.", "Anxiety lies. You are safe right now.", "This feeling is temporary. You are permanent."],
+  grateful: ["Gratitude is such a beautiful practice.", "What you're grateful for says so much about your heart.", "Thank you for sharing your gratitude with me."]
+};
+
+function generateCompanionResponse(userMessage, mood, isFirstMessage) {
+  const name = companionMemory.getName();
+  const responses = companionResponses[mood] || companionResponses.cloudy;
+  const facts = companionMemory.getFacts();
+  const lastMood = companionMemory.getLastMood();
+  const checkInCount = companionMemory.getCheckInCount();
+
+  if (isFirstMessage) {
+    let greeting = pickRandom(responses.greetings);
+    if (name) greeting = greeting.replace('you', name).replace('You', name);
+    if (checkInCount > 1 && lastMood && lastMood.mood !== mood) {
+      greeting += ' Last time you felt ' + (lastMood.mood === 'sunny' ? 'bright' : lastMood.mood === 'cloudy' ? 'quiet' : lastMood.mood === 'rainy' ? 'heavy' : 'like a storm') + ', and now you are here. I am glad you came back.';
+    }
+    const followUp = pickRandom(responses.followUps);
+    return greeting + ' ' + followUp;
+  }
+
+  if (!userMessage) return pickRandom(responses.encouragements);
+
+  const lowerMsg = userMessage.toLowerCase();
+
+  for (const [topic, topicResponses] of Object.entries(companionTopics)) {
+    if (lowerMsg.includes(topic)) {
+      const response = pickRandom(topicResponses);
+      if (lowerMsg.length > 10) companionMemory.addFact('Mentioned ' + topic + ': "' + userMessage.substring(0, 60) + '..."');
+      return response;
+    }
+  }
+
+  if (lowerMsg.includes('thank') || lowerMsg.includes('grateful') || lowerMsg.includes('appreciate')) {
+    return pickRandom(["You're so welcome. I'm always here.", "Thank YOU for sharing with me.", "Your gratitude makes my heart glow."]);
+  }
+
+  if (lowerMsg.includes('your name') || lowerMsg.includes('who are you')) {
+    return "I'm " + COMPANION_NAME + ", your gentle companion. I don't have all the answers, but I have unlimited patience and a very soft heart. 💗";
+  }
+
+  if (lowerMsg.includes('my name is') || lowerMsg.includes('i am ') || lowerMsg.includes("i'm ")) {
+    const possibleName = extractName(userMessage);
+    if (possibleName && possibleName.length > 1 && possibleName.length < 20) {
+      companionMemory.setName(possibleName);
+      return 'It is so lovely to meet you, ' + possibleName + "! I'll remember that. From now on, this is our space. 💗";
+    }
+  }
+
+  if (lowerMsg.length < 10) return pickRandom(responses.encouragements);
+
+  if (userMessage.length > 15) companionMemory.addFact('Shared: "' + userMessage.substring(0, 80) + '..."');
+
+  if (facts.length > 0 && Math.random() > 0.7) {
+    const randomFact = facts[Math.floor(Math.random() * facts.length)];
+    return 'I remember you once told me: ' + randomFact.fact.substring(0, 50) + '... How are things with that now?';
+  }
+
+  const empatheticResponses = [
+    "I hear you. Thank you for sharing that with me.",
+    "That makes sense. Your feelings are completely valid.",
+    "I'm listening. Take all the time you need.",
+    "You don't have to have it all figured out. Neither do I.",
+    "That sounds like a lot. I'm glad you told me.",
+    "Your heart is speaking. I'm listening.",
+    "However you're feeling right now is exactly how you're supposed to feel.",
+    "You are so much stronger than you know."
+  ];
+
+  return pickRandom(empatheticResponses);
+}
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function extractName(text) {
+  const patterns = [
+    /my name is (\w+)/i,
+    /i am (\w+)/i,
+    /i'm (\w+)/i,
+    /call me (\w+)/i
+  ];
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
+function renderCompanionChat() {
+  const container = document.getElementById('companionChat');
+  const history = companionMemory.getHistory();
+  container.innerHTML = '';
+  history.forEach(msg => {
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble ' + msg.role;
+    bubble.innerHTML = '<div>' + escapeHtml(msg.text) + '</div><div class="chat-bubble-time">' + new Date(msg.time).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'}) + '</div>';
+    container.appendChild(bubble);
+  });
+  container.scrollTop = container.scrollHeight;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function showTypingIndicator() {
+  const container = document.getElementById('companionChat');
+  const indicator = document.createElement('div');
+  indicator.className = 'typing-indicator';
+  indicator.id = 'typingIndicator';
+  indicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+  container.appendChild(indicator);
+  container.scrollTop = container.scrollHeight;
+}
+
+function hideTypingIndicator() {
+  const indicator = document.getElementById('typingIndicator');
+  if (indicator) indicator.remove();
+}
+
+function sendCompanionMessage() {
+  const input = document.getElementById('companionInput');
+  const text = input.value.trim();
+  if (!text) return;
+  document.getElementById('companionSendBtn').disabled = true;
+  companionMemory.addMessage('user', text);
+  renderCompanionChat();
+  input.value = '';
+  showTypingIndicator();
+  setTimeout(() => {
+    hideTypingIndicator();
+    const response = generateCompanionResponse(text, currentMood || 'cloudy', false);
+    companionMemory.addMessage('companion', response);
+    renderCompanionChat();
+    document.getElementById('companionSendBtn').disabled = false;
+  }, 1200 + Math.random() * 800);
+}
+
+function initCompanionChat(mood) {
+  currentMood = mood;
+  const container = document.getElementById('companionChat');
+  container.innerHTML = '';
+  const history = companionMemory.getHistory();
+  if (history.length === 0) {
+    const greeting = generateCompanionResponse(null, mood, true);
+    companionMemory.addMessage('companion', greeting);
+  }
+  renderCompanionChat();
+}
+
+function openCompanion() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('companionScreen').classList.add('active');
+  document.getElementById('companionFab').classList.add('hidden');
+  renderCompanionChat();
+}
+
+function saveCompanionName() {
+  const input = document.getElementById('nameInput');
+  const name = input.value.trim();
+  if (name) {
+    companionMemory.setName(name);
+    document.getElementById('profileNameDisplay').textContent = name;
+    document.getElementById('nameModal').classList.remove('active');
+    showToast('🐰 Lumi will remember you, ' + name + '!');
+    companionMemory.addMessage('companion', 'It is so lovely to meet you, ' + name + "! I'm Lumi, your gentle companion. I'll be here whenever you need a soft place to land. 💗");
+  }
+}
+
+// ===== GARDEN SYSTEM =====
+const GARDEN_GOAL = 1000000;
+let gardenDots = [];
+
+function initGarden() {
+  const saved = localStorage.getItem('gentle_garden_dots');
+  if (saved) gardenDots = JSON.parse(saved);
+  else generateInitialGardenDots();
+  renderGarden();
+  updateGardenGoal();
+  startGardenPetals();
+}
+
+function generateInitialGardenDots() {
+  const locations = [
+    { x: 15, y: 25, loc: 'Tokyo, Japan' }, { x: 35, y: 30, loc: 'Paris, France' },
+    { x: 55, y: 22, loc: 'London, UK' }, { x: 75, y: 35, loc: 'New York, USA' },
+    { x: 20, y: 45, loc: 'Sydney, Australia' }, { x: 45, y: 40, loc: 'Cairo, Egypt' },
+    { x: 65, y: 50, loc: 'Mumbai, India' }, { x: 85, y: 45, loc: 'São Paulo, Brazil' },
+    { x: 25, y: 60, loc: 'Cape Town, SA' }, { x: 50, y: 55, loc: 'Nairobi, Kenya' },
+    { x: 70, y: 65, loc: 'Bangkok, Thailand' }, { x: 40, y: 70, loc: 'Lima, Peru' },
+    { x: 60, y: 75, loc: 'Jakarta, Indonesia' }, { x: 80, y: 70, loc: 'Mexico City' },
+    { x: 30, y: 80, loc: 'Auckland, NZ' }, { x: 55, y: 85, loc: 'Singapore' }
+  ];
+  const messages = [
+    "You are doing better than you think",
+    "Your presence matters more than you know",
+    "Take a deep breath. You have got this.",
+    "Someone, somewhere, is grateful you exist",
+    "Rest is not laziness. It is necessary.",
+    "You are enough, exactly as you are",
+    "The world is softer because you are in it",
+    "You have survived every bad day so far",
+    "Your feelings are valid, always",
+    "It's okay to not be okay"
+  ];
+  const moods = ['sunny', 'cloudy', 'rainy', 'stormy'];
+  gardenDots = locations.map((loc, i) => ({
+    id: 'dot_' + i,
+    x: loc.x + (Math.random() * 6 - 3),
+    y: loc.y + (Math.random() * 6 - 3),
+    mood: moods[Math.floor(Math.random() * moods.length)],
+    message: messages[Math.floor(Math.random() * messages.length)],
+    location: loc.loc,
+    time: new Date(Date.now() - Math.random() * 86400000 * 7).toISOString()
+  }));
+  localStorage.setItem('gentle_garden_dots', JSON.stringify(gardenDots));
+}
+
+function addGardenDot(mood, message) {
+  const dot = {
+    id: 'dot_' + Date.now(),
+    x: 20 + Math.random() * 60,
+    y: 20 + Math.random() * 60,
+    mood,
+    message: message || 'A gentle spark of warmth',
+    location: 'Your location',
+    time: new Date().toISOString()
+  };
+  gardenDots.push(dot);
+  localStorage.setItem('gentle_garden_dots', JSON.stringify(gardenDots));
+  const current = parseInt(localStorage.getItem('gentle_garden_progress') || '0') + 1;
+  localStorage.setItem('gentle_garden_progress', current);
+  updateGardenGoal();
+  renderGardenDot(dot);
+}
+
+function renderGarden() {
+  const container = document.getElementById('gardenDots');
+  if (!container) return;
+  container.innerHTML = '';
+  gardenDots.forEach(dot => renderGardenDot(dot));
+}
+
+function renderGardenDot(dot) {
+  const container = document.getElementById('gardenDots');
+  if (!container) return;
+  const el = document.createElement('div');
+  el.className = 'garden-dot ' + dot.mood;
+  el.style.left = dot.x + '%';
+  el.style.top = dot.y + '%';
+  el.style.animationDelay = Math.random() * 3 + 's';
+  el.onclick = () => showGardenMessage(dot);
+  container.appendChild(el);
+}
+
+function showGardenMessage(dot) {
+  const panel = document.getElementById('gardenMessagePanel');
+  document.getElementById('gardenMessageText').textContent = '"' + dot.message + '"';
+  document.getElementById('gardenMessageLocation').textContent = '📍 ' + dot.location + ' · ' + new Date(dot.time).toLocaleDateString();
+  panel.classList.add('active');
+}
+
+function closeGardenMessage() {
+  document.getElementById('gardenMessagePanel').classList.remove('active');
+}
+
+function updateGardenGoal() {
+  const progress = parseInt(localStorage.getItem('gentle_garden_progress') || gardenDots.length);
+  const pct = Math.min((progress / GARDEN_GOAL) * 100, 100);
+  document.getElementById('gardenGoalCount').textContent = progress.toLocaleString() + ' / 1,000,000';
+  document.getElementById('gardenProgressFill').style.width = pct + '%';
+}
+
+function startGardenPetals() {
+  const container = document.getElementById('gardenPetals');
+  if (!container) return;
+  const petals = ['🌸', '🌺', '🌻', '🌷', '🌼', '🍃'];
+  setInterval(() => {
+    const petal = document.createElement('div');
+    petal.className = 'garden-floating-petal';
+    petal.textContent = petals[Math.floor(Math.random() * petals.length)];
+    petal.style.left = Math.random() * 100 + '%';
+    petal.style.top = '-20px';
+    petal.style.animationDuration = (6 + Math.random() * 6) + 's';
+    container.appendChild(petal);
+    setTimeout(() => petal.remove(), 12000);
+  }, 3000);
+}
+
+function goToGarden() {
+  switchTab('garden');
+}
+
+// ===== HUDDLE ROOM =====
+function openHuddleRoom() {
+  if (!currentMood) {
+    showToast('💚 Check in first to join a huddle room');
+    return;
+  }
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('huddleScreen').classList.add('active');
+  document.getElementById('huddleMoodBadge').textContent = moodEmojis[currentMood] + ' ' + currentMood.charAt(0).toUpperCase() + currentMood.slice(1) + ' souls';
+  const huddleMessages = getHuddleMessages(currentMood);
+  const container = document.getElementById('huddleChat');
+  container.innerHTML = '';
+  huddleMessages.forEach(msg => {
+    const div = document.createElement('div');
+    div.className = 'huddle-message';
+    div.innerHTML = '<div class="huddle-message-text">' + msg.text + '</div><div class="huddle-message-meta">' + msg.from + ' · ' + msg.time + '</div>';
+    container.appendChild(div);
+  });
+}
+
+function getHuddleMessages(mood) {
+  const messages = {
+    sunny: [
+      { text: "The coffee I had this morning was perfect. Small wins! ☕", from: "Stranger #42", time: "2m ago" },
+      { text: "My dog wagged his tail when I got home. That's all I needed today.", from: "Stranger #88", time: "5m ago" },
+      { text: "I finished a book I've been reading for months. Feels good.", from: "Stranger #15", time: "12m ago" }
+    ],
+    cloudy: [
+      { text: "Just sitting here with my tea. Not doing much, and that's okay.", from: "Stranger #33", time: "1m ago" },
+      { text: "Work was overwhelming but I made it through the day.", from: "Stranger #71", time: "8m ago" },
+      { text: "Feeling a bit lost but I'm still here. That's enough.", from: "Stranger #19", time: "15m ago" }
+    ],
+    rainy: [
+      { text: "Cried in my car today. Then I wiped my face and drove home. Small steps.", from: "Stranger #56", time: "3m ago" },
+      { text: "Missing someone today. Sending love to anyone else who is too.", from: "Stranger #24", time: "7m ago" },
+      { text: "Took a nap. It helped a little. That's okay.", from: "Stranger #91", time: "20m ago" }
+    ],
+    stormy: [
+      { text: "Today was really hard. I don't know how I got through it but I did.", from: "Stranger #67", time: "1m ago" },
+      { text: "If you're in this room, you're not alone. I'm struggling too.", from: "Stranger #12", time: "4m ago" },
+      { text: "Called a crisis line today. It helped. There's no shame in that.", from: "Stranger #38", time: "10m ago" }
+    ]
+  };
+  return messages[mood] || messages.cloudy;
+}
+
+function sendHuddleMessage() {
+  const input = document.getElementById('huddleInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const container = document.getElementById('huddleChat');
+  const div = document.createElement('div');
+  div.className = 'huddle-message';
+  div.style.borderLeftColor = moodColors[currentMood] || moodColors.sunny;
+  div.innerHTML = '<div class="huddle-message-text">' + escapeHtml(text) + '</div><div class="huddle-message-meta">You · Just now</div>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  input.value = '';
+  setTimeout(() => {
+    const responses = ["Thank you for sharing. You're not alone.", "I needed to hear that today.", "Sending you warmth from my corner of the world.", "We're in this together."];
+    const respDiv = document.createElement('div');
+    respDiv.className = 'huddle-message';
+    respDiv.innerHTML = '<div class="huddle-message-text">' + pickRandom(responses) + '</div><div class="huddle-message-meta">Stranger #' + (Math.floor(Math.random()*99)+1) + ' · Just now</div>';
+    container.appendChild(respDiv);
+    container.scrollTop = container.scrollHeight;
+  }, 2000 + Math.random() * 3000);
+}
+
+// ===== RIPPLE CARDS =====
+const flowers = ['🌸', '🌺', '🌻', '🌷', '🌼', '🌹', '🪷', '🌿'];
+let currentCardFlower = flowers[0];
+let currentCardQuote = "Your presence matters more than you know";
+
+function initCardGallery() {
+  const gallery = JSON.parse(localStorage.getItem('gentle_ripple_cards') || '[]');
+  renderCardGallery(gallery);
+}
+
+function renderCardGallery(gallery) {
+  const container = document.getElementById('cardGallery');
+  if (!container) return;
+  if (gallery.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="grid-column: 1/-1; padding: 20px;"><div class="empty-state-emoji" style="font-size: 32px;">🌸</div><div class="empty-state-text" style="font-size: 13px;">No bloomed cards yet</div><div class="empty-state-sub" style="font-size: 11px;">Bloom your first kindness card</div></div>';
+    return;
+  }
+  container.innerHTML = gallery.slice(0, 6).map(card => {
+    return '<div class="card-gallery-item" onclick="previewCard('' + card.flower + '', '' + card.quote.replace(/'/g, "\'") + '')"><div class="card-gallery-flower">' + card.flower + '</div><div class="card-gallery-text">"' + card.quote + '"</div><div class="card-gallery-date">' + new Date(card.date).toLocaleDateString() + '</div></div>';
+  }).join('');
+}
+
+function previewCard(flower, quote) {
+  currentCardFlower = flower || flowers[0];
+  currentCardQuote = quote || "Your presence matters";
+  document.getElementById('cardFlower').textContent = currentCardFlower;
+  document.getElementById('cardQuote').textContent = '"' + currentCardQuote + '"';
+  const flowerEl = document.getElementById('cardFlower');
+  flowerEl.style.animation = 'none';
+  flowerEl.offsetHeight;
+  flowerEl.style.animation = 'bloomGrow 1.2s ease-out';
+}
+
+function newCardFlower() {
+  currentCardFlower = flowers[Math.floor(Math.random() * flowers.length)];
+  previewCard(currentCardFlower, currentCardQuote);
+}
+
+function saveCardToGallery() {
+  const gallery = JSON.parse(localStorage.getItem('gentle_ripple_cards') || '[]');
+  gallery.unshift({ flower: currentCardFlower, quote: currentCardQuote, date: new Date().toISOString() });
+  localStorage.setItem('gentle_ripple_cards', JSON.stringify(gallery.slice(0, 20)));
+  renderCardGallery(gallery);
+  showToast('🌸 Card saved to your collection!');
+}
+
+function shareCard() {
+  const shareText = currentCardFlower + ' "' + currentCardQuote + '" — Sent via Gentle';
+  if (navigator.share) {
+    navigator.share({ title: 'A gentle message from Gentle', text: shareText, url: 'https://gentle.app' }).then(() => {
+      showToast('🌸 Shared with love!');
+      const current = parseInt(localStorage.getItem('gentle_garden_progress') || '0') + 1;
+      localStorage.setItem('gentle_garden_progress', current);
+      updateGardenGoal();
+    }).catch(() => showToast('💫 Card ready to share'));
+  } else {
+    navigator.clipboard.writeText(shareText).then(() => showToast('📋 Copied to clipboard!'));
+  }
+}
+
+function openCardScreen(quote) {
+  currentCardQuote = quote || "Your presence matters more than you know";
+  previewCard(flowers[Math.floor(Math.random() * flowers.length)], currentCardQuote);
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('cardScreen').classList.add('active');
+  initCardGallery();
+}
+
+// ===== SCREEN NAVIGATION =====
+async function beginGentle() {
+  setLoading(true);
+  document.getElementById('beginBtn').disabled = true;
+  try {
+    await authUser();
+    await loadHomeData();
+    document.getElementById('welcomeScreen').classList.remove('active');
+    document.getElementById('homeScreen').classList.add('active');
+    document.getElementById('bottomNav').style.display = 'flex';
+    initGreeting();
+    initGarden();
+    initCardGallery();
+    if (!companionMemory.getName()) {
+      setTimeout(() => document.getElementById('nameModal').classList.add('active'), 1000);
+    }
+    const now = new Date();
+    if (now.getMonth() === 1 && now.getDate() <= 14) {
+      document.getElementById('seasonalBanner').style.display = 'flex';
+    }
+  } catch (err) {
+    showToast('Starting in offline mode');
+    document.getElementById('welcomeScreen').classList.remove('active');
+    document.getElementById('homeScreen').classList.add('active');
+    document.getElementById('bottomNav').style.display = 'flex';
+    initGarden();
+    initCardGallery();
+  }
+  setLoading(false);
+}
+
+function initGreeting() {
+  const hour = new Date().getHours();
+  let greeting = 'Good morning';
+  if (hour >= 12) greeting = 'Good afternoon';
+  if (hour >= 17) greeting = 'Good evening';
+  const name = companionMemory.getName();
+  if (name) greeting += ', ' + name;
+  document.getElementById('greeting').textContent = greeting;
+  const options = { weekday: 'long', month: 'long', day: 'numeric' };
+  document.getElementById('dateDisplay').textContent = new Date().toLocaleDateString('en-US', options);
+}
+
+async function loadHomeData() {
+  const stats = await getGlobalStats();
+  document.getElementById('kindnessStats').textContent = stats.todayKindness.toLocaleString() + ' kindness messages sent today · ' + stats.totalKindness.toLocaleString() + ' total';
+  await loadReceivedKindness();
+  updateStats();
+  loadMoodHistory();
+}
+
+async function loadReceivedKindness() {
+  const container = document.getElementById('receivedKindness');
+  const history = await getKindnessHistory();
+  if (history.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="padding: 20px;"><div class="empty-state-emoji" style="font-size: 36px;">💌</div><div class="empty-state-text" style="font-size: 13px;">No warmth yet</div><div class="empty-state-sub" style="font-size: 11px;">Check in daily to receive kindness</div></div>';
+    return;
+  }
+  container.innerHTML = history.map(k => {
+    return '<div class="kindness-card"><div class="kindness-text">"' + k.text + '"</div><div class="kindness-meta">' + k.from + ' · ' + new Date(k.time).toLocaleDateString() + '</div><div style="display:flex;align-items:center;margin-top:8px;"><button class="kindness-reply" onclick="acknowledgeKindness('' + k.id + '')">Acknowledge</button><button class="report-btn" onclick="reportKindness('' + k.id + '')">🚩 Report</button><button class="report-btn" style="margin-left:4px;" onclick="openCardScreen('' + k.text.replace(/'/g, "\'") + '')">🌸 Bloom</button></div></div>';
+  }).join('');
+}
+
+function loadMoodHistory() {
+  const moods = JSON.parse(localStorage.getItem('gentle_moods') || '[]');
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const container = document.getElementById('moodHistory');
+  let html = '';
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const dayName = days[d.getDay()];
+    const dateStr = d.toISOString().split('T')[0];
+    const dayMood = moods.find(m => m.date.startsWith(dateStr));
+    const emoji = dayMood ? moodEmojis[dayMood.mood] : '?';
+    html += '<div class="mood-history-item"><span class="mood-history-emoji">' + emoji + '</span><span class="mood-history-day">' + dayName + '</span></div>';
+  }
+  container.innerHTML = html;
+}
+
+// ===== MOOD & RESPONSE =====
+function selectMood(btn, mood) {
+  document.querySelectorAll('.mood-btn').forEach(b => {
+    b.classList.remove('selected');
+    b.style.background = 'rgba(255,255,255,0.12)';
+    b.style.transform = 'scale(1)';
+    b.style.borderColor = 'rgba(255,255,255,0.35)';
+  });
+  btn.classList.add('selected');
+  currentMood = mood;
+  saveMood(mood);
+  document.getElementById('homeScreen').classList.remove('active');
+  document.getElementById('companionScreen').classList.add('active');
+  document.getElementById('companionFab').classList.add('hidden');
+  initCompanionChat(mood);
+  renderSuggestions();
+}
+
+function backHome() {
+  document.getElementById('responseScreen').style.display = 'none';
+  document.getElementById('responseScreen').classList.remove('active');
+  document.getElementById('homeScreen').classList.add('active');
+  document.getElementById('companionFab').classList.remove('hidden');
+  loadHomeData();
+}
+
+let currentSuggestionIndex = 0;
+function renderSuggestions() {
+  const area = document.getElementById('suggestionsArea');
+  if (!area || !currentMood) return;
+  const s = suggestions[currentMood][currentSuggestionIndex % suggestions[currentMood].length];
+  area.innerHTML = '<div class="suggestion-card" style="--card-accent:' + s.accent + ';--icon-bg:' + s.color + '20;"><div class="suggestion-header"><div class="suggestion-icon" style="background:' + s.color + '20;color:' + s.color + ';">' + s.icon + '</div><div><div class="suggestion-title">' + s.title + '</div><div class="suggestion-duration">~ 5 minutes</div></div></div><div class="suggestion-desc">' + s.desc + '</div><button class="suggestion-action" onclick="showToast('💫 That is a wonderful idea')">' + s.action + '</button></div>';
+}
+
+function refreshSuggestions() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  setTimeout(() => btn.classList.remove('spinning'), 600);
+  if (currentMood) { currentSuggestionIndex++; renderSuggestions(); }
+}
+
+// ===== JOURNAL =====
+function setPrompt(p) {
+  document.getElementById('journalInput').value = p + ' ';
+  document.getElementById('journalInput').focus();
+}
+
+async function submitJournal() {
+  const input = document.getElementById('journalInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const moderation = checkMessageModeration(text);
+  if (!moderation.clean) {
+    input.value = '';
+    const reason = 'Journal entry flagged: ' + moderation.violations.slice(0, 3).join(', ');
+    const offense = suspendUser(7, reason, moderation.violations);
+    showOffenseModal(offense);
+    showToast('🛡️ Inappropriate content detected. Account suspended.');
+    updateSuspensionUI();
+    renderModerationHistory();
+    return;
+  }
+  document.getElementById('journalSendBtn').disabled = true;
+  try {
+    await saveJournalEntry(text, currentMood || 'sunny');
+    input.value = '';
+    showToast('🌸 Saved gently');
+    await renderJournalEntries();
+  } catch (err) { showToast('❌ Could not save. Try again.'); }
+  document.getElementById('journalSendBtn').disabled = false;
+}
+
+async function submitJournalFull() {
+  const input = document.getElementById('journalInputFull');
+  const text = input.value.trim();
+  if (!text) return;
+  const moderation = checkMessageModeration(text);
+  if (!moderation.clean) {
+    input.value = '';
+    const reason = 'Journal entry flagged: ' + moderation.violations.slice(0, 3).join(', ');
+    const offense = suspendUser(7, reason, moderation.violations);
+    showOffenseModal(offense);
+    showToast('🛡️ Inappropriate content detected. Account suspended.');
+    updateSuspensionUI();
+    renderModerationHistory();
+    return;
+  }
+  try {
+    await saveJournalEntry(text, currentMood || 'sunny');
+    input.value = '';
+    showToast('🌸 Saved to your journal');
+    await renderJournalEntries();
+  } catch (err) { showToast('❌ Could not save. Try again.'); }
+}
+
+async function renderJournalEntries() {
+  const entries = await getJournalEntries();
+  const html = entries.length === 0 
+    ? '<div class="empty-state"><div class="empty-state-emoji">📝</div><div class="empty-state-text">Your journal is empty</div><div class="empty-state-sub">Write your first tiny moment</div></div>'
+    : entries.map(e => {
+        return '<div class="journal-entry" style="--entry-color:' + (moodColors[e.mood] || moodColors.sunny) + ';"><div class="journal-entry-text">' + e.text + '</div><div class="journal-entry-meta"><span class="journal-entry-time">' + new Date(e.date).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'}) + '</span><span class="journal-entry-mood">' + (moodEmojis[e.mood] || '🌤️') + '</span></div></div>';
+      }).join('');
+  document.getElementById('journalEntries').innerHTML = html;
+  document.getElementById('journalListFull').innerHTML = html;
+}
+
+// ===== KINDNESS MODAL =====
+function openModal() {
+  document.getElementById('passModal').classList.add('active');
+  document.getElementById('kindnessInput').value = '';
+}
+
+function closeModal() {
+  document.getElementById('passModal').classList.remove('active');
+}
+
+function setPreset(text) {
+  document.getElementById('kindnessInput').value = text;
+}
+
+async function sendKindness() {
+  const suspension = isUserSuspended();
+  if (suspension) {
+    const timer = getSuspensionTimeRemaining();
+    showSuspensionModal(timer);
+    return;
+  }
+  const input = document.getElementById('kindnessInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const moderation = checkMessageModeration(text);
+  if (!moderation.clean) {
+    input.value = '';
+    const reason = 'Your message contained inappropriate content detected by our AI moderation system.';
+    const offense = suspendUser(7, reason, moderation.violations);
+    showOffenseModal(offense);
+    showToast('🛡️ Message blocked. Account suspended for 7 days.');
+    updateSuspensionUI();
+    renderModerationHistory();
+    return;
+  }
+  document.getElementById('sendKindnessBtn').disabled = true;
+  try {
+    const result = await sendKindnessToServer(text, currentMood || 'sunny');
+    if (result.error) {
+      showToast('⚠️ ' + result.error);
+    } else {
+      closeModal();
+      showToast('💌 ' + (result.message || 'Your warmth is on its way'));
+      await loadHomeData();
+    }
+  } catch (err) {
+    showToast('❌ Could not send. Saved for later.');
+  }
+  document.getElementById('sendKindnessBtn').disabled = false;
+}
+
+function acknowledgeKindness(id) {
+  showToast('💚 Warmth acknowledged. Want to pass it forward?');
+  setTimeout(() => openModal(), 1500);
+}
+
+// ===== BREATHING =====
+function startBreathing() {
+  document.getElementById('breathingOverlay').classList.add('active');
+  let inhale = true;
+  const text = document.getElementById('breathingText');
+  breathingInterval = setInterval(() => {
+    inhale = !inhale;
+    text.textContent = inhale ? 'Breathe in' : 'Breathe out';
+  }, 4000);
+}
+
+function closeBreathing() {
+  document.getElementById('breathingOverlay').classList.remove('active');
+  if (breathingInterval) { clearInterval(breathingInterval); breathingInterval = null; }
+}
+
+// ===== NAVIGATION =====
+function switchTab(tab) {
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.remove('active');
+    n.style.color = '#A89080';
+  });
+  event.currentTarget.classList.add('active');
+  event.currentTarget.style.color = '#E8B4B8';
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+
+  if (tab === 'home') {
+    document.getElementById('homeScreen').classList.add('active');
+    document.getElementById('companionFab').classList.remove('hidden');
+    loadHomeData();
+  } else if (tab === 'garden') {
+    document.getElementById('gardenScreen').classList.add('active');
+    document.getElementById('companionFab').classList.add('hidden');
+    initGarden();
+  } else if (tab === 'journal') {
+    document.getElementById('journalScreen').classList.add('active');
+    document.getElementById('companionFab').classList.add('hidden');
+    renderJournalEntries();
+  } else if (tab === 'profile') {
+    document.getElementById('profileScreen').classList.add('active');
+    document.getElementById('companionFab').classList.add('hidden');
+    updateStats();
+    renderModerationHistory();
+  }
+}
+
+async function loadKindnessScreen() {
+  const list = document.getElementById('kindnessList');
+  const history = await getKindnessHistory();
+  if (history.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-emoji">💌</div><div class="empty-state-text">No warmth yet</div><div class="empty-state-sub">Check in daily to receive kindness from strangers</div></div>';
+    return;
+  }
+  list.innerHTML = history.map(k => {
+    return '<div class="kindness-card"><div class="kindness-text">"' + k.text + '"</div><div class="kindness-meta">' + k.from + ' · ' + new Date(k.time).toLocaleDateString() + '</div><div style="display:flex;align-items:center;margin-top:8px;"><button class="kindness-reply" onclick="acknowledgeKindness('' + k.id + '')">Acknowledge</button><button class="report-btn" onclick="reportKindness('' + k.id + '')">🚩 Report</button><button class="report-btn" style="margin-left:4px;" onclick="openCardScreen('' + k.text.replace(/'/g, "\'") + '')">🌸 Bloom</button></div></div>';
+  }).join('');
+}
+
+function goToProfile() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('profileScreen').classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('active'); n.style.color = '#A89080'; });
+  document.getElementById('companionFab').classList.add('hidden');
+  updateStats();
+  renderModerationHistory();
+}
+
+function toggleThis(el) {
+  el.classList.toggle('active');
+  const knob = el.querySelector('.toggle-knob');
+  if (el.classList.contains('active')) {
+    el.style.background = '#A8C5A8';
+    knob.style.left = '22px';
+  } else {
+    el.style.background = '#F5E6D3';
+    knob.style.left = '2px';
+  }
+}
+
+// ===== API CONFIG =====
+function saveApiUrl() {
+  const url = document.getElementById('apiUrlInput').value.trim();
+  if (url) {
+    API_URL = url.replace(/\/$/, '');
+    localStorage.setItem('gentle_api_url', API_URL);
+    showToast('🔌 Connecting to new server...');
+    authUser().then(() => {
+      showToast(isOnline ? '✅ Connected!' : '⚠️ Server not reachable');
+    });
+  }
+}
+
+function upgradeToPlus() {
+  upgradeToPlusServer();
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('apiUrlInput').value = API_URL;
+  updateSuspensionUI();
+  startSuspensionTimer();
+  authUser().catch(() => {});
+});
+</script>
+</body>
+</html>
